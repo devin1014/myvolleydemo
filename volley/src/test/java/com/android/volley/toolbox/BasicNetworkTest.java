@@ -16,16 +16,16 @@
 
 package com.android.volley.toolbox;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Cache.Entry;
 import com.android.volley.Header;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
+import com.android.volley.exception.ServerError;
+import com.android.volley.exception.TimeoutError;
+import com.android.volley.exception.VolleyError;
 import com.android.volley.mock.MockHttpStack;
 
 import org.junit.Before;

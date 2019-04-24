@@ -18,6 +18,8 @@ package com.android.volley;
 
 import android.os.Handler;
 
+import com.android.volley.exception.VolleyError;
+
 import java.util.concurrent.Executor;
 
 /**

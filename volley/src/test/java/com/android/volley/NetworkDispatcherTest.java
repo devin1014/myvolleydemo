@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import com.android.volley.exception.ServerError;
+import com.android.volley.exception.VolleyError;
 import com.android.volley.toolbox.NoCache;
 import com.android.volley.toolbox.StringRequest;
 

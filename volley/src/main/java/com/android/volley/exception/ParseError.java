@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.volley;
+package com.android.volley.exception;
+
+import com.android.volley.NetworkResponse;
+import com.android.volley.exception.VolleyError;
 
 /**
  * Indicates that the server's response could not be parsed.

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.volley;
+package com.android.volley.exception;
+
+import com.android.volley.NetworkResponse;
 
 /**
  * Indicates that there was a network error when performing a Volley request.

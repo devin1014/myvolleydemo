@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import com.android.volley.exception.VolleyError;
+
 /**
  * Default retry policy for requests.
  */

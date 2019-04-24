@@ -24,7 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.exception.AuthFailureError;
 
 import org.junit.Assert;
 import org.junit.Before;

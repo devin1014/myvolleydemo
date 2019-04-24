@@ -20,7 +20,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
-import com.android.volley.VolleyError;
+import com.android.volley.exception.VolleyError;
 import com.android.volley.utils.CacheTestUtils;
 
 import java.util.HashMap;

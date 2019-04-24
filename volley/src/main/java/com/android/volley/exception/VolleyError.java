@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.volley;
+package com.android.volley.exception;
+
+import com.android.volley.NetworkResponse;
 
 /**
  * Exception style class encapsulating Volley errors
@@ -53,7 +55,7 @@ public class VolleyError extends Exception
         networkResponse = null;
     }
 
-    /* package */ void setNetworkTimeMs(long networkTimeMs)
+    public void setNetworkTimeMs(long networkTimeMs)
     {
         this.networkTimeMs = networkTimeMs;
     }

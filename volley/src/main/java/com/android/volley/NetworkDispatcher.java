@@ -23,6 +23,8 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.support.annotation.VisibleForTesting;
 
+import com.android.volley.exception.VolleyError;
+
 import java.util.concurrent.BlockingQueue;
 
 

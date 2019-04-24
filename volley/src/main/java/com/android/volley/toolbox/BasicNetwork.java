@@ -18,20 +18,20 @@ package com.android.volley.toolbox;
 
 import android.os.SystemClock;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.Cache.Entry;
-import com.android.volley.ClientError;
+import com.android.volley.exception.ClientError;
 import com.android.volley.Header;
 import com.android.volley.Network;
-import com.android.volley.NetworkError;
+import com.android.volley.exception.NetworkError;
 import com.android.volley.NetworkResponse;
-import com.android.volley.NoConnectionError;
+import com.android.volley.exception.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
+import com.android.volley.exception.ServerError;
+import com.android.volley.exception.TimeoutError;
+import com.android.volley.exception.VolleyError;
 import com.android.volley.VolleyLog;
 
 import java.io.IOException;

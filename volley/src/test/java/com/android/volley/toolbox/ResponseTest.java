@@ -19,7 +19,7 @@ package com.android.volley.toolbox;
 import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.android.volley.exception.VolleyError;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

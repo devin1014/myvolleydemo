@@ -20,7 +20,7 @@ import android.os.SystemClock;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.android.volley.exception.VolleyError;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

@@ -15,7 +15,7 @@
  */
 package com.android.volley.toolbox;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Request;
 
 import java.io.IOException;

@@ -25,7 +25,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.exception.AuthFailureError;
 
 /**
  * An Authenticator that uses {@link AccountManager} to get auth tokens of a specified type for a

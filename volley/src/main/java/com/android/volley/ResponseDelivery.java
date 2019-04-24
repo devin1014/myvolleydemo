@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import com.android.volley.exception.VolleyError;
+
 public interface ResponseDelivery
 {
     /**

@@ -26,7 +26,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.ResponseDelivery;
-import com.android.volley.VolleyError;
+import com.android.volley.exception.VolleyError;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -16,7 +16,7 @@
 
 package com.android.volley.mock;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.BaseHttpStack;
 import com.android.volley.toolbox.HttpResponse;

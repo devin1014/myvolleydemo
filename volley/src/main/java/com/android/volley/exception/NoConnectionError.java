@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.volley;
+package com.android.volley.exception;
 
 /**
- * Indicates that the connection or the socket timed out.
+ * Error indicating that no connection could be established when performing a Volley request.
  */
 @SuppressWarnings("serial")
-public class TimeoutError extends VolleyError
+public class NoConnectionError extends NetworkError
 {
+    public NoConnectionError()
+    {
+        super();
+    }
+
+    public NoConnectionError(Throwable reason)
+    {
+        super(reason);
+    }
 }
