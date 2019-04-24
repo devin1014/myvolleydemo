@@ -18,21 +18,21 @@ package com.android.volley.toolbox;
 
 import android.os.SystemClock;
 
-import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.Cache.Entry;
-import com.android.volley.exception.ClientError;
 import com.android.volley.Header;
 import com.android.volley.Network;
-import com.android.volley.exception.NetworkError;
 import com.android.volley.NetworkResponse;
-import com.android.volley.exception.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyLog;
+import com.android.volley.exception.AuthFailureError;
+import com.android.volley.exception.ClientError;
+import com.android.volley.exception.NetworkError;
+import com.android.volley.exception.NoConnectionError;
 import com.android.volley.exception.ServerError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
-import com.android.volley.VolleyLog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +49,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * A network performing Volley requests over an {@link HttpStack}.
+ * A network performing Volley requests over an {@link BaseHttpStack}.
  */
 public class BasicNetwork implements Network
 {
@@ -59,43 +59,9 @@ public class BasicNetwork implements Network
 
     private static final int DEFAULT_POOL_SIZE = 4096;
 
-    /**
-     * @deprecated Should never have been exposed in the API. This field may be removed in a future
-     * release of Volley.
-     */
-    @Deprecated
-    protected final HttpStack mHttpStack;
-
     private final BaseHttpStack mBaseHttpStack;
 
     protected final ByteArrayPool mPool;
-
-    /**
-     * @param httpStack HTTP stack to be used
-     * @deprecated use {@link #BasicNetwork(BaseHttpStack)} instead to avoid depending on Apache
-     * HTTP. This method may be removed in a future release of Volley.
-     */
-    @Deprecated
-    public BasicNetwork(HttpStack httpStack)
-    {
-        // If a pool isn't passed in, then build a small default pool that will give us a lot of
-        // benefit and not use too much memory.
-        this(httpStack, new ByteArrayPool(DEFAULT_POOL_SIZE));
-    }
-
-    /**
-     * @param httpStack HTTP stack to be used
-     * @param pool      a buffer pool that improves GC performance in copy operations
-     * @deprecated use {@link #BasicNetwork(BaseHttpStack, ByteArrayPool)} instead to avoid
-     * depending on Apache HTTP. This method may be removed in a future release of Volley.
-     */
-    @Deprecated
-    public BasicNetwork(HttpStack httpStack, ByteArrayPool pool)
-    {
-        mHttpStack = httpStack;
-        mBaseHttpStack = new AdaptedHttpStack(httpStack);
-        mPool = pool;
-    }
 
     /**
      * @param httpStack HTTP stack to be used
@@ -114,10 +80,6 @@ public class BasicNetwork implements Network
     public BasicNetwork(BaseHttpStack httpStack, ByteArrayPool pool)
     {
         mBaseHttpStack = httpStack;
-        // Populate mHttpStack for backwards compatibility, since it is a protected field. However,
-        // we won't use it directly here, so clients which don't access it directly won't need to
-        // depend on Apache HTTP.
-        mHttpStack = httpStack;
         mPool = pool;
     }
 

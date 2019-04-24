@@ -15,8 +15,8 @@
  */
 package com.android.volley.toolbox;
 
-import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Request;
+import com.android.volley.exception.AuthFailureError;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -26,7 +26,7 @@ import java.util.Map;
  * An HTTP stack abstraction.
  */
 @SuppressWarnings("deprecation") // for HttpStack
-public abstract class BaseHttpStack implements HttpStack
+public abstract class BaseHttpStack
 {
 
     /**
@@ -46,20 +46,4 @@ public abstract class BaseHttpStack implements HttpStack
     public abstract HttpResponse executeRequest(
             Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError;
-
-    /**
-     * @deprecated use {@link #executeRequest} instead to avoid a dependency on the deprecated
-     * Apache HTTP library. Nothing in Volley's own source calls this method. However, since
-     * {@link BasicNetwork#mHttpStack} is exposed to subclasses, we provide this implementation
-     * in case legacy client apps are dependent on that field. This method may be removed in a
-     * future release of Volley.
-     */
-    @Deprecated
-    @Override
-    public final HttpResponse performRequest(
-            Request<?> request, Map<String, String> additionalHeaders)
-            throws IOException, AuthFailureError
-    {
-        return executeRequest(request, additionalHeaders);
-    }
 }
