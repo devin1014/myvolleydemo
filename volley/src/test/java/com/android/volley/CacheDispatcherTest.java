@@ -16,6 +16,21 @@
 
 package com.android.volley;
 
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.utils.CacheTestUtils;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.robolectric.RobolectricTestRunner;
+
+import java.util.concurrent.BlockingQueue;
+
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,55 +42,53 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.utils.CacheTestUtils;
-import java.util.concurrent.BlockingQueue;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.robolectric.RobolectricTestRunner;
-
 @RunWith(RobolectricTestRunner.class)
 @SuppressWarnings("rawtypes")
-public class CacheDispatcherTest {
+public class CacheDispatcherTest
+{
     private CacheDispatcher mDispatcher;
-    private @Mock BlockingQueue<Request<?>> mCacheQueue;
-    private @Mock BlockingQueue<Request<?>> mNetworkQueue;
-    private @Mock Cache mCache;
-    private @Mock ResponseDelivery mDelivery;
-    private @Mock Network mNetwork;
+    private @Mock
+    BlockingQueue<Request<?>> mCacheQueue;
+    private @Mock
+    BlockingQueue<Request<?>> mNetworkQueue;
+    private @Mock
+    Cache mCache;
+    private @Mock
+    ResponseDelivery mDelivery;
+    private @Mock
+    Network mNetwork;
     private StringRequest mRequest;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         initMocks(this);
 
         mRequest = new StringRequest(Request.Method.GET, "http://foo", null, null);
         mDispatcher = new CacheDispatcher(mCacheQueue, mNetworkQueue, mCache, mDelivery);
     }
 
-    private static class WaitForever implements Answer {
+    private static class WaitForever implements Answer
+    {
         @Override
-        public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        public Object answer(InvocationOnMock invocationOnMock) throws Throwable
+        {
             Thread.sleep(Long.MAX_VALUE);
             return null;
         }
     }
 
     @Test
-    public void runStopsOnQuit() throws Exception {
+    public void runStopsOnQuit() throws Exception
+    {
         when(mCacheQueue.take()).then(new WaitForever());
         mDispatcher.start();
         mDispatcher.quit();
         mDispatcher.join(1000);
     }
 
-    private static void verifyNoResponse(ResponseDelivery delivery) {
+    private static void verifyNoResponse(ResponseDelivery delivery)
+    {
         verify(delivery, never()).postResponse(any(Request.class), any(Response.class));
         verify(delivery, never())
                 .postResponse(any(Request.class), any(Response.class), any(Runnable.class));
@@ -84,7 +97,8 @@ public class CacheDispatcherTest {
 
     // A cancelled request should not be processed at all.
     @Test
-    public void cancelledRequest() throws Exception {
+    public void cancelledRequest() throws Exception
+    {
         mRequest.cancel();
         mDispatcher.processRequest(mRequest);
         verify(mCache, never()).get(anyString());
@@ -93,7 +107,8 @@ public class CacheDispatcherTest {
 
     // A cache miss does not post a response and puts the request on the network queue.
     @Test
-    public void cacheMiss() throws Exception {
+    public void cacheMiss() throws Exception
+    {
         mDispatcher.processRequest(mRequest);
         verifyNoResponse(mDelivery);
         verify(mNetworkQueue).put(mRequest);
@@ -102,7 +117,8 @@ public class CacheDispatcherTest {
 
     // A non-expired cache hit posts a response and does not queue to the network.
     @Test
-    public void nonExpiredCacheHit() throws Exception {
+    public void nonExpiredCacheHit() throws Exception
+    {
         Cache.Entry entry = CacheTestUtils.makeRandomCacheEntry(null, false, false);
         when(mCache.get(anyString())).thenReturn(entry);
         mDispatcher.processRequest(mRequest);
@@ -112,7 +128,8 @@ public class CacheDispatcherTest {
 
     // A soft-expired cache hit posts a response and queues to the network.
     @Test
-    public void softExpiredCacheHit() throws Exception {
+    public void softExpiredCacheHit() throws Exception
+    {
         Cache.Entry entry = CacheTestUtils.makeRandomCacheEntry(null, false, true);
         when(mCache.get(anyString())).thenReturn(entry);
         mDispatcher.processRequest(mRequest);
@@ -131,7 +148,8 @@ public class CacheDispatcherTest {
 
     // An expired cache hit does not post a response and queues to the network.
     @Test
-    public void expiredCacheHit() throws Exception {
+    public void expiredCacheHit() throws Exception
+    {
         Cache.Entry entry = CacheTestUtils.makeRandomCacheEntry(null, true, true);
         when(mCache.get(anyString())).thenReturn(entry);
         mDispatcher.processRequest(mRequest);
@@ -141,7 +159,8 @@ public class CacheDispatcherTest {
     }
 
     @Test
-    public void duplicateCacheMiss() throws Exception {
+    public void duplicateCacheMiss() throws Exception
+    {
         StringRequest secondRequest =
                 new StringRequest(Request.Method.GET, "http://foo", null, null);
         mRequest.setSequence(1);
@@ -153,7 +172,8 @@ public class CacheDispatcherTest {
     }
 
     @Test
-    public void tripleCacheMiss_networkErrorOnFirst() throws Exception {
+    public void tripleCacheMiss_networkErrorOnFirst() throws Exception
+    {
         StringRequest secondRequest =
                 new StringRequest(Request.Method.GET, "http://foo", null, null);
         StringRequest thirdRequest =
@@ -177,7 +197,8 @@ public class CacheDispatcherTest {
     }
 
     @Test
-    public void duplicateSoftExpiredCacheHit_failedRequest() throws Exception {
+    public void duplicateSoftExpiredCacheHit_failedRequest() throws Exception
+    {
         Cache.Entry entry = CacheTestUtils.makeRandomCacheEntry(null, false, true);
         when(mCache.get(anyString())).thenReturn(entry);
 
@@ -206,7 +227,8 @@ public class CacheDispatcherTest {
     }
 
     @Test
-    public void duplicateSoftExpiredCacheHit_successfulRequest() throws Exception {
+    public void duplicateSoftExpiredCacheHit_successfulRequest() throws Exception
+    {
         Cache.Entry entry = CacheTestUtils.makeRandomCacheEntry(null, false, true);
         when(mCache.get(anyString())).thenReturn(entry);
 
@@ -237,7 +259,8 @@ public class CacheDispatcherTest {
     }
 
     @Test
-    public void processRequestNotifiesListener() throws Exception {
+    public void processRequestNotifiesListener() throws Exception
+    {
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(mCache, mNetwork, 0, mDelivery);
         queue.addRequestEventListener(listener);

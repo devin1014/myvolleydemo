@@ -18,8 +18,11 @@ package com.android.volley.toolbox;
 
 import com.android.volley.AuthFailureError;
 
-/** An interface for interacting with auth tokens. */
-public interface Authenticator {
+/**
+ * An interface for interacting with auth tokens.
+ */
+public interface Authenticator
+{
     /**
      * Synchronously retrieves an auth token.
      *
@@ -27,6 +30,8 @@ public interface Authenticator {
      */
     String getAuthToken() throws AuthFailureError;
 
-    /** Invalidates the provided auth token. */
+    /**
+     * Invalidates the provided auth token.
+     */
     void invalidateAuthToken(String authToken);
 }

@@ -16,22 +16,26 @@
 
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertNotNull;
-
 import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(RobolectricTestRunner.class)
-public class ResponseTest {
+public class ResponseTest
+{
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         assertNotNull(Response.class.getMethod("success", Object.class, Cache.Entry.class));
         assertNotNull(Response.class.getMethod("error", VolleyError.class));

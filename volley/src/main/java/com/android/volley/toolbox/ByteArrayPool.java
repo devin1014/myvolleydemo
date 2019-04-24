@@ -49,13 +49,18 @@ import java.util.List;
  * certain byte limit. When a buffer is returned that would cause the pool to exceed the limit,
  * least-recently-used buffers are disposed.
  */
-public class ByteArrayPool {
-    /** The buffer pool, arranged both by last use and by buffer size */
+public class ByteArrayPool
+{
+    /**
+     * The buffer pool, arranged both by last use and by buffer size
+     */
     private final List<byte[]> mBuffersByLastUse = new ArrayList<>();
 
     private final List<byte[]> mBuffersBySize = new ArrayList<>(64);
 
-    /** The total size of the buffers in the pool */
+    /**
+     * The total size of the buffers in the pool
+     */
     private int mCurrentSize = 0;
 
     /**
@@ -64,17 +69,24 @@ public class ByteArrayPool {
      */
     private final int mSizeLimit;
 
-    /** Compares buffers by size */
+    /**
+     * Compares buffers by size
+     */
     protected static final Comparator<byte[]> BUF_COMPARATOR =
-            new Comparator<byte[]>() {
+            new Comparator<byte[]>()
+            {
                 @Override
-                public int compare(byte[] lhs, byte[] rhs) {
+                public int compare(byte[] lhs, byte[] rhs)
+                {
                     return lhs.length - rhs.length;
                 }
             };
 
-    /** @param sizeLimit the maximum size of the pool, in bytes */
-    public ByteArrayPool(int sizeLimit) {
+    /**
+     * @param sizeLimit the maximum size of the pool, in bytes
+     */
+    public ByteArrayPool(int sizeLimit)
+    {
         mSizeLimit = sizeLimit;
     }
 
@@ -83,13 +95,16 @@ public class ByteArrayPool {
      * one if a pooled one is not available.
      *
      * @param len the minimum size, in bytes, of the requested buffer. The returned buffer may be
-     *     larger.
+     *            larger.
      * @return a byte[] buffer is always returned.
      */
-    public synchronized byte[] getBuf(int len) {
-        for (int i = 0; i < mBuffersBySize.size(); i++) {
+    public synchronized byte[] getBuf(int len)
+    {
+        for (int i = 0; i < mBuffersBySize.size(); i++)
+        {
             byte[] buf = mBuffersBySize.get(i);
-            if (buf.length >= len) {
+            if (buf.length >= len)
+            {
                 mCurrentSize -= buf.length;
                 mBuffersBySize.remove(i);
                 mBuffersByLastUse.remove(buf);
@@ -105,13 +120,16 @@ public class ByteArrayPool {
      *
      * @param buf the buffer to return to the pool.
      */
-    public synchronized void returnBuf(byte[] buf) {
-        if (buf == null || buf.length > mSizeLimit) {
+    public synchronized void returnBuf(byte[] buf)
+    {
+        if (buf == null || buf.length > mSizeLimit)
+        {
             return;
         }
         mBuffersByLastUse.add(buf);
         int pos = Collections.binarySearch(mBuffersBySize, buf, BUF_COMPARATOR);
-        if (pos < 0) {
+        if (pos < 0)
+        {
             pos = -pos - 1;
         }
         mBuffersBySize.add(pos, buf);
@@ -119,9 +137,13 @@ public class ByteArrayPool {
         trim();
     }
 
-    /** Removes buffers from the pool until it is under its size limit. */
-    private synchronized void trim() {
-        while (mCurrentSize > mSizeLimit) {
+    /**
+     * Removes buffers from the pool until it is under its size limit.
+     */
+    private synchronized void trim()
+    {
+        while (mCurrentSize > mSizeLimit)
+        {
             byte[] buf = mBuffersByLastUse.remove(0);
             mBuffersBySize.remove(buf);
             mCurrentSize -= buf.length;

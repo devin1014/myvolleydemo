@@ -20,6 +20,7 @@ import com.android.volley.Cache;
 import com.android.volley.Header;
 import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyLog;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,8 +31,11 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
-/** Utility methods for parsing HTTP headers. */
-public class HttpHeaderParser {
+/**
+ * Utility methods for parsing HTTP headers.
+ */
+public class HttpHeaderParser
+{
 
     static final String HEADER_CONTENT_TYPE = "Content-Type";
 
@@ -45,7 +49,8 @@ public class HttpHeaderParser {
      * @param response The network response to parse headers from
      * @return a cache entry for the given response, or null if the response is not cacheable.
      */
-    public static Cache.Entry parseCacheHeaders(NetworkResponse response) {
+    public static Cache.Entry parseCacheHeaders(NetworkResponse response)
+    {
         long now = System.currentTimeMillis();
 
         Map<String, String> headers = response.headers;
@@ -64,41 +69,59 @@ public class HttpHeaderParser {
         String headerValue;
 
         headerValue = headers.get("Date");
-        if (headerValue != null) {
+        if (headerValue != null)
+        {
             serverDate = parseDateAsEpoch(headerValue);
         }
 
         headerValue = headers.get("Cache-Control");
-        if (headerValue != null) {
+        if (headerValue != null)
+        {
             hasCacheControl = true;
             String[] tokens = headerValue.split(",", 0);
-            for (int i = 0; i < tokens.length; i++) {
+            for (int i = 0; i < tokens.length; i++)
+            {
                 String token = tokens[i].trim();
-                if (token.equals("no-cache") || token.equals("no-store")) {
+                if (token.equals("no-cache") || token.equals("no-store"))
+                {
                     return null;
-                } else if (token.startsWith("max-age=")) {
-                    try {
+                }
+                else if (token.startsWith("max-age="))
+                {
+                    try
+                    {
                         maxAge = Long.parseLong(token.substring(8));
-                    } catch (Exception e) {
                     }
-                } else if (token.startsWith("stale-while-revalidate=")) {
-                    try {
+                    catch (Exception e)
+                    {
+                    }
+                }
+                else if (token.startsWith("stale-while-revalidate="))
+                {
+                    try
+                    {
                         staleWhileRevalidate = Long.parseLong(token.substring(23));
-                    } catch (Exception e) {
                     }
-                } else if (token.equals("must-revalidate") || token.equals("proxy-revalidate")) {
+                    catch (Exception e)
+                    {
+                    }
+                }
+                else if (token.equals("must-revalidate") || token.equals("proxy-revalidate"))
+                {
                     mustRevalidate = true;
                 }
             }
         }
 
         headerValue = headers.get("Expires");
-        if (headerValue != null) {
+        if (headerValue != null)
+        {
             serverExpires = parseDateAsEpoch(headerValue);
         }
 
         headerValue = headers.get("Last-Modified");
-        if (headerValue != null) {
+        if (headerValue != null)
+        {
             lastModified = parseDateAsEpoch(headerValue);
         }
 
@@ -106,10 +129,13 @@ public class HttpHeaderParser {
 
         // Cache-Control takes precedence over an Expires header, even if both exist and Expires
         // is more restrictive.
-        if (hasCacheControl) {
+        if (hasCacheControl)
+        {
             softExpire = now + maxAge * 1000;
             finalExpire = mustRevalidate ? softExpire : softExpire + staleWhileRevalidate * 1000;
-        } else if (serverDate > 0 && serverExpires >= serverDate) {
+        }
+        else if (serverDate > 0 && serverExpires >= serverDate)
+        {
             // Default semantic for Expire header in HTTP specification is softExpire.
             softExpire = now + (serverExpires - serverDate);
             finalExpire = softExpire;
@@ -128,24 +154,34 @@ public class HttpHeaderParser {
         return entry;
     }
 
-    /** Parse date in RFC1123 format, and return its value as epoch */
-    public static long parseDateAsEpoch(String dateStr) {
-        try {
+    /**
+     * Parse date in RFC1123 format, and return its value as epoch
+     */
+    public static long parseDateAsEpoch(String dateStr)
+    {
+        try
+        {
             // Parse date in RFC1123 format if this header contains one
             return newRfc1123Formatter().parse(dateStr).getTime();
-        } catch (ParseException e) {
+        }
+        catch (ParseException e)
+        {
             // Date in invalid format, fallback to 0
             VolleyLog.e(e, "Unable to parse dateStr: %s, falling back to 0", dateStr);
             return 0;
         }
     }
 
-    /** Format an epoch date in RFC1123 format. */
-    static String formatEpochAsRfc1123(long epoch) {
+    /**
+     * Format an epoch date in RFC1123 format.
+     */
+    static String formatEpochAsRfc1123(long epoch)
+    {
         return newRfc1123Formatter().format(new Date(epoch));
     }
 
-    private static SimpleDateFormat newRfc1123Formatter() {
+    private static SimpleDateFormat newRfc1123Formatter()
+    {
         SimpleDateFormat formatter = new SimpleDateFormat(RFC1123_FORMAT, Locale.US);
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         return formatter;
@@ -154,19 +190,24 @@ public class HttpHeaderParser {
     /**
      * Retrieve a charset from headers
      *
-     * @param headers An {@link java.util.Map} of headers
+     * @param headers        An {@link java.util.Map} of headers
      * @param defaultCharset Charset to return if none can be found
      * @return Returns the charset specified in the Content-Type of this header, or the
-     *     defaultCharset if none can be found.
+     * defaultCharset if none can be found.
      */
-    public static String parseCharset(Map<String, String> headers, String defaultCharset) {
+    public static String parseCharset(Map<String, String> headers, String defaultCharset)
+    {
         String contentType = headers.get(HEADER_CONTENT_TYPE);
-        if (contentType != null) {
+        if (contentType != null)
+        {
             String[] params = contentType.split(";", 0);
-            for (int i = 1; i < params.length; i++) {
+            for (int i = 1; i < params.length; i++)
+            {
                 String[] pair = params[i].trim().split("=", 0);
-                if (pair.length == 2) {
-                    if (pair[0].equals("charset")) {
+                if (pair.length == 2)
+                {
+                    if (pair[0].equals("charset"))
+                    {
                         return pair[1];
                     }
                 }
@@ -180,7 +221,8 @@ public class HttpHeaderParser {
      * Returns the charset specified in the Content-Type of this header, or the HTTP default
      * (ISO-8859-1) if none can be found.
      */
-    public static String parseCharset(Map<String, String> headers) {
+    public static String parseCharset(Map<String, String> headers)
+    {
         return parseCharset(headers, DEFAULT_CONTENT_CHARSET);
     }
 
@@ -189,18 +231,22 @@ public class HttpHeaderParser {
     // TODO: Consider obfuscating official releases so we can share utility methods between Volley
     // and Toolbox without making them public APIs.
 
-    static Map<String, String> toHeaderMap(List<Header> allHeaders) {
+    static Map<String, String> toHeaderMap(List<Header> allHeaders)
+    {
         Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         // Later elements in the list take precedence.
-        for (Header header : allHeaders) {
+        for (Header header : allHeaders)
+        {
             headers.put(header.getName(), header.getValue());
         }
         return headers;
     }
 
-    static List<Header> toAllHeaderList(Map<String, String> headers) {
+    static List<Header> toAllHeaderList(Map<String, String> headers)
+    {
         List<Header> allHeaders = new ArrayList<>(headers.size());
-        for (Map.Entry<String, String> header : headers.entrySet()) {
+        for (Map.Entry<String, String> header : headers.entrySet())
+        {
             allHeaders.add(new Header(header.getKey(), header.getValue()));
         }
         return allHeaders;

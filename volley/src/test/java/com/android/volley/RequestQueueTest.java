@@ -16,17 +16,11 @@
 
 package com.android.volley;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.android.volley.mock.ShadowSystemClock;
 import com.android.volley.toolbox.NoCache;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.utils.ImmediateResponseDelivery;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,22 +28,35 @@ import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-/** Unit tests for RequestQueue, with all dependencies mocked out */
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+/**
+ * Unit tests for RequestQueue, with all dependencies mocked out
+ */
 @RunWith(RobolectricTestRunner.class)
 @Config(shadows = {ShadowSystemClock.class})
-public class RequestQueueTest {
+public class RequestQueueTest
+{
 
     private ResponseDelivery mDelivery;
-    @Mock private Network mMockNetwork;
+    @Mock
+    private Network mMockNetwork;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         mDelivery = new ImmediateResponseDelivery();
         initMocks(this);
     }
 
     @Test
-    public void cancelAll_onlyCorrectTag() throws Exception {
+    public void cancelAll_onlyCorrectTag() throws Exception
+    {
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 0, mDelivery);
         Object tagA = new Object();
         Object tagB = new Object();
@@ -75,7 +82,8 @@ public class RequestQueueTest {
     }
 
     @Test
-    public void add_notifiesListener() throws Exception {
+    public void add_notifiesListener() throws Exception
+    {
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 0, mDelivery);
         queue.addRequestEventListener(listener);
@@ -88,7 +96,8 @@ public class RequestQueueTest {
     }
 
     @Test
-    public void finish_notifiesListener() throws Exception {
+    public void finish_notifiesListener() throws Exception
+    {
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 0, mDelivery);
         queue.addRequestEventListener(listener);
@@ -101,7 +110,8 @@ public class RequestQueueTest {
     }
 
     @Test
-    public void sendRequestEvent_notifiesListener() throws Exception {
+    public void sendRequestEvent_notifiesListener() throws Exception
+    {
         StringRequest req = mock(StringRequest.class);
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 0, mDelivery);
@@ -115,7 +125,8 @@ public class RequestQueueTest {
     }
 
     @Test
-    public void removeRequestEventListener_removesListener() throws Exception {
+    public void removeRequestEventListener_removesListener() throws Exception
+    {
         StringRequest req = mock(StringRequest.class);
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 0, mDelivery);

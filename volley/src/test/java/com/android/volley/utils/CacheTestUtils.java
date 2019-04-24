@@ -17,24 +17,30 @@
 package com.android.volley.utils;
 
 import com.android.volley.Cache;
+
 import java.util.Random;
 
-public class CacheTestUtils {
+public class CacheTestUtils
+{
 
     /**
      * Makes a random cache entry.
      *
-     * @param data Data to use, or null to use random data
-     * @param isExpired Whether the TTLs should be set such that this entry is expired
+     * @param data         Data to use, or null to use random data
+     * @param isExpired    Whether the TTLs should be set such that this entry is expired
      * @param needsRefresh Whether the TTLs should be set such that this entry needs refresh
      */
     public static Cache.Entry makeRandomCacheEntry(
-            byte[] data, boolean isExpired, boolean needsRefresh) {
+            byte[] data, boolean isExpired, boolean needsRefresh)
+    {
         Random random = new Random();
         Cache.Entry entry = new Cache.Entry();
-        if (data != null) {
+        if (data != null)
+        {
             entry.data = data;
-        } else {
+        }
+        else
+        {
             entry.data = new byte[random.nextInt(1024)];
         }
         entry.etag = String.valueOf(random.nextLong());
@@ -48,7 +54,8 @@ public class CacheTestUtils {
      * Like {@link #makeRandomCacheEntry(byte[], boolean, boolean)} but defaults to an unexpired
      * entry.
      */
-    public static Cache.Entry makeRandomCacheEntry(byte[] data) {
+    public static Cache.Entry makeRandomCacheEntry(byte[] data)
+    {
         return makeRandomCacheEntry(data, false, false);
     }
 }

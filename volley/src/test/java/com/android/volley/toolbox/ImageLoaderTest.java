@@ -16,6 +16,19 @@
 
 package com.android.volley.toolbox;
 
+import android.graphics.Bitmap;
+import android.widget.ImageView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.robolectric.RobolectricTestRunner;
+
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -25,38 +38,31 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.graphics.Bitmap;
-import android.widget.ImageView;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.robolectric.RobolectricTestRunner;
-
 @RunWith(RobolectricTestRunner.class)
-public class ImageLoaderTest {
+public class ImageLoaderTest
+{
     private RequestQueue mRequestQueue;
     private ImageLoader.ImageCache mImageCache;
     private ImageLoader mImageLoader;
 
     @Before
-    public void setUp() {
+    public void setUp()
+    {
         mRequestQueue = mock(RequestQueue.class);
         mImageCache = mock(ImageLoader.ImageCache.class);
         mImageLoader = new ImageLoader(mRequestQueue, mImageCache);
     }
 
     @Test
-    public void isCachedChecksCache() throws Exception {
+    public void isCachedChecksCache() throws Exception
+    {
         when(mImageCache.getBitmap(anyString())).thenReturn(null);
         Assert.assertFalse(mImageLoader.isCached("http://foo", 0, 0));
     }
 
     @Test
-    public void getWithCacheHit() throws Exception {
+    public void getWithCacheHit() throws Exception
+    {
         Bitmap bitmap = Bitmap.createBitmap(1, 1, null);
         ImageLoader.ImageListener listener = mock(ImageLoader.ImageListener.class);
         when(mImageCache.getBitmap(anyString())).thenReturn(bitmap);
@@ -66,7 +72,8 @@ public class ImageLoaderTest {
     }
 
     @Test
-    public void getWithCacheMiss() throws Exception {
+    public void getWithCacheMiss() throws Exception
+    {
         when(mImageCache.getBitmap(anyString())).thenReturn(null);
         ImageLoader.ImageListener listener = mock(ImageLoader.ImageListener.class);
         // Ask for the image to be loaded.
@@ -80,7 +87,8 @@ public class ImageLoaderTest {
     }
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch API breaking changes.
         ImageLoader.getImageListener(null, -1, -1);
         mImageLoader.setBatchedResponseDelay(1000);

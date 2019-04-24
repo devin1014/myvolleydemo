@@ -16,30 +16,35 @@
 
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowBitmapFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(RobolectricTestRunner.class)
-public class ImageRequestTest {
+public class ImageRequestTest
+{
 
     @Test
-    public void parseNetworkResponse_resizing() throws Exception {
+    public void parseNetworkResponse_resizing() throws Exception
+    {
         // This is a horrible hack but Robolectric doesn't have a way to provide
         // width and height hints for decodeByteArray. It works because the byte array
         // "file:fake" is ASCII encodable and thus the name in Robolectric's fake
@@ -129,7 +134,8 @@ public class ImageRequestTest {
             int maxHeight,
             ScaleType scaleType,
             int expectedWidth,
-            int expectedHeight) {
+            int expectedHeight)
+    {
         ImageRequest request =
                 new ImageRequest("", null, maxWidth, maxHeight, scaleType, Config.RGB_565, null);
         Response<Bitmap> response = request.parseNetworkResponse(networkResponse);
@@ -142,7 +148,8 @@ public class ImageRequestTest {
     }
 
     @Test
-    public void findBestSampleSize() {
+    public void findBestSampleSize()
+    {
         // desired == actual == 1
         assertEquals(1, ImageRequest.findBestSampleSize(100, 150, 100, 150));
 
@@ -156,11 +163,13 @@ public class ImageRequestTest {
         assertEquals(4, ImageRequest.findBestSampleSize(100, 200, 24, 50));
     }
 
-    private static byte[] readInputStream(InputStream in) throws IOException {
+    private static byte[] readInputStream(InputStream in) throws IOException
+    {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int count;
-        while ((count = in.read(buffer)) != -1) {
+        while ((count = in.read(buffer)) != -1)
+        {
             bytes.write(buffer, 0, count);
         }
         in.close();
@@ -168,7 +177,8 @@ public class ImageRequestTest {
     }
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         assertNotNull(
                 ImageRequest.class.getConstructor(

@@ -16,16 +16,17 @@
 
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.android.volley.Header;
 import com.android.volley.Request.Method;
 import com.android.volley.mock.TestRequest;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,35 +39,42 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-public class HurlStackTest {
+public class HurlStackTest
+{
 
-    @Mock private HttpURLConnection mMockConnection;
+    @Mock
+    private HttpURLConnection mMockConnection;
     private HurlStack mHurlStack;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         MockitoAnnotations.initMocks(this);
         when(mMockConnection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
 
         mHurlStack =
-                new HurlStack() {
+                new HurlStack()
+                {
                     @Override
-                    protected HttpURLConnection createConnection(URL url) {
+                    protected HttpURLConnection createConnection(URL url)
+                    {
                         return mMockConnection;
                     }
                 };
     }
 
     @Test
-    public void connectionForDeprecatedGetRequest() throws Exception {
+    public void connectionForDeprecatedGetRequest() throws Exception
+    {
         TestRequest.DeprecatedGet request = new TestRequest.DeprecatedGet();
         assertEquals(request.getMethod(), Method.DEPRECATED_GET_OR_POST);
 
@@ -76,7 +84,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForDeprecatedPostRequest() throws Exception {
+    public void connectionForDeprecatedPostRequest() throws Exception
+    {
         TestRequest.DeprecatedPost request = new TestRequest.DeprecatedPost();
         assertEquals(request.getMethod(), Method.DEPRECATED_GET_OR_POST);
 
@@ -86,7 +95,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForGetRequest() throws Exception {
+    public void connectionForGetRequest() throws Exception
+    {
         TestRequest.Get request = new TestRequest.Get();
         assertEquals(request.getMethod(), Method.GET);
 
@@ -96,7 +106,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForPostRequest() throws Exception {
+    public void connectionForPostRequest() throws Exception
+    {
         TestRequest.Post request = new TestRequest.Post();
         assertEquals(request.getMethod(), Method.POST);
 
@@ -106,7 +117,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForPostWithBodyRequest() throws Exception {
+    public void connectionForPostWithBodyRequest() throws Exception
+    {
         TestRequest.PostWithBody request = new TestRequest.PostWithBody();
         assertEquals(request.getMethod(), Method.POST);
 
@@ -116,7 +128,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForPutRequest() throws Exception {
+    public void connectionForPutRequest() throws Exception
+    {
         TestRequest.Put request = new TestRequest.Put();
         assertEquals(request.getMethod(), Method.PUT);
 
@@ -126,7 +139,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForPutWithBodyRequest() throws Exception {
+    public void connectionForPutWithBodyRequest() throws Exception
+    {
         TestRequest.PutWithBody request = new TestRequest.PutWithBody();
         assertEquals(request.getMethod(), Method.PUT);
 
@@ -136,7 +150,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForDeleteRequest() throws Exception {
+    public void connectionForDeleteRequest() throws Exception
+    {
         TestRequest.Delete request = new TestRequest.Delete();
         assertEquals(request.getMethod(), Method.DELETE);
 
@@ -146,7 +161,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForHeadRequest() throws Exception {
+    public void connectionForHeadRequest() throws Exception
+    {
         TestRequest.Head request = new TestRequest.Head();
         assertEquals(request.getMethod(), Method.HEAD);
 
@@ -156,7 +172,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForOptionsRequest() throws Exception {
+    public void connectionForOptionsRequest() throws Exception
+    {
         TestRequest.Options request = new TestRequest.Options();
         assertEquals(request.getMethod(), Method.OPTIONS);
 
@@ -166,7 +183,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForTraceRequest() throws Exception {
+    public void connectionForTraceRequest() throws Exception
+    {
         TestRequest.Trace request = new TestRequest.Trace();
         assertEquals(request.getMethod(), Method.TRACE);
 
@@ -176,7 +194,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForPatchRequest() throws Exception {
+    public void connectionForPatchRequest() throws Exception
+    {
         TestRequest.Patch request = new TestRequest.Patch();
         assertEquals(request.getMethod(), Method.PATCH);
 
@@ -186,7 +205,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void connectionForPatchWithBodyRequest() throws Exception {
+    public void connectionForPatchWithBodyRequest() throws Exception
+    {
         TestRequest.PatchWithBody request = new TestRequest.PatchWithBody();
         assertEquals(request.getMethod(), Method.PATCH);
 
@@ -196,38 +216,48 @@ public class HurlStackTest {
     }
 
     @Test
-    public void executeRequestClosesConnection_connectionError() throws Exception {
+    public void executeRequestClosesConnection_connectionError() throws Exception
+    {
         when(mMockConnection.getResponseCode()).thenThrow(new SocketTimeoutException());
-        try {
+        try
+        {
             mHurlStack.executeRequest(
                     new TestRequest.Get(), Collections.<String, String>emptyMap());
             fail("Should have thrown exception");
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             verify(mMockConnection).disconnect();
         }
     }
 
     @Test
-    public void executeRequestClosesConnection_invalidResponseCode() throws Exception {
+    public void executeRequestClosesConnection_invalidResponseCode() throws Exception
+    {
         when(mMockConnection.getResponseCode()).thenReturn(-1);
-        try {
+        try
+        {
             mHurlStack.executeRequest(
                     new TestRequest.Get(), Collections.<String, String>emptyMap());
             fail("Should have thrown exception");
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             verify(mMockConnection).disconnect();
         }
     }
 
     @Test
-    public void executeRequestClosesConnection_noResponseBody() throws Exception {
+    public void executeRequestClosesConnection_noResponseBody() throws Exception
+    {
         when(mMockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NO_CONTENT);
         mHurlStack.executeRequest(new TestRequest.Get(), Collections.<String, String>emptyMap());
         verify(mMockConnection).disconnect();
     }
 
     @Test
-    public void executeRequestClosesConnection_hasResponseBody() throws Exception {
+    public void executeRequestClosesConnection_hasResponseBody() throws Exception
+    {
         when(mMockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(mMockConnection.getInputStream())
                 .thenReturn(new ByteArrayInputStream("hello".getBytes(StandardCharsets.UTF_8)));
@@ -241,7 +271,8 @@ public class HurlStackTest {
     }
 
     @Test
-    public void convertHeaders() {
+    public void convertHeaders()
+    {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(null, Collections.singletonList("Ignored"));
         headers.put("HeaderA", Collections.singletonList("ValueA"));

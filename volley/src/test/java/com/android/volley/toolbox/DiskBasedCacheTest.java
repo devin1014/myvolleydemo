@@ -16,6 +16,34 @@
 
 package com.android.volley.toolbox;
 
+import com.android.volley.Cache;
+import com.android.volley.Header;
+import com.android.volley.toolbox.DiskBasedCache.CacheHeader;
+import com.android.volley.toolbox.DiskBasedCache.CountingInputStream;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,63 +60,44 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import com.android.volley.Cache;
-import com.android.volley.Header;
-import com.android.volley.toolbox.DiskBasedCache.CacheHeader;
-import com.android.volley.toolbox.DiskBasedCache.CountingInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 16)
-public class DiskBasedCacheTest {
+public class DiskBasedCacheTest
+{
 
     private static final int MAX_SIZE = 1024 * 1024;
 
     private Cache cache;
 
-    @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Rule public ExpectedException exception = ExpectedException.none();
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException
+    {
         // Initialize empty cache
         cache = new DiskBasedCache(temporaryFolder.getRoot(), MAX_SIZE);
         cache.initialize();
     }
 
     @After
-    public void teardown() {
+    public void teardown()
+    {
         cache = null;
     }
 
     @Test
-    public void testEmptyInitialize() {
+    public void testEmptyInitialize()
+    {
         assertThat(cache.get("key"), is(nullValue()));
     }
 
     @Test
-    public void testPutGetZeroBytes() {
+    public void testPutGetZeroBytes()
+    {
         Cache.Entry entry = new Cache.Entry();
         entry.data = new byte[0];
         entry.serverDate = 1234567L;
@@ -106,7 +115,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testPutRemoveGet() {
+    public void testPutRemoveGet()
+    {
         Cache.Entry entry = randomData(511);
         cache.put("key", entry);
 
@@ -118,7 +128,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testPutClearGet() {
+    public void testPutClearGet()
+    {
         Cache.Entry entry = randomData(511);
         cache.put("key", entry);
 
@@ -130,7 +141,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testReinitialize() {
+    public void testReinitialize()
+    {
         Cache.Entry entry = randomData(1023);
         cache.put("key", entry);
 
@@ -141,7 +153,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testInvalidate() {
+    public void testInvalidate()
+    {
         Cache.Entry entry = randomData(32);
         entry.softTtl = 8765432L;
         entry.ttl = 9876543L;
@@ -153,7 +166,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testInvalidateFullExpire() {
+    public void testInvalidateFullExpire()
+    {
         Cache.Entry entry = randomData(32);
         entry.softTtl = 8765432L;
         entry.ttl = 9876543L;
@@ -166,7 +180,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testTooLargeEntry() {
+    public void testTooLargeEntry()
+    {
         Cache.Entry entry = randomData(MAX_SIZE - getEntrySizeOnDisk("oversize"));
         cache.put("oversize", entry);
 
@@ -174,7 +189,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testMaxSizeEntry() {
+    public void testMaxSizeEntry()
+    {
         Cache.Entry entry = randomData(MAX_SIZE - getEntrySizeOnDisk("maxsize") - 1);
         cache.put("maxsize", entry);
 
@@ -182,7 +198,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testTrimAtThreshold() {
+    public void testTrimAtThreshold()
+    {
         // Start with the largest possible entry.
         Cache.Entry entry = randomData(MAX_SIZE - getEntrySizeOnDisk("maxsize") - 1);
         cache.put("maxsize", entry);
@@ -198,7 +215,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testTrimWithMultipleEvictions_underHysteresisThreshold() {
+    public void testTrimWithMultipleEvictions_underHysteresisThreshold()
+    {
         Cache.Entry entry1 = randomData(MAX_SIZE / 3 - getEntrySizeOnDisk("entry1") - 1);
         cache.put("entry1", entry1);
         Cache.Entry entry2 = randomData(MAX_SIZE / 3 - getEntrySizeOnDisk("entry2") - 1);
@@ -223,7 +241,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testTrimWithMultipleEvictions_atHysteresisThreshold() {
+    public void testTrimWithMultipleEvictions_atHysteresisThreshold()
+    {
         Cache.Entry entry1 = randomData(MAX_SIZE / 3 - getEntrySizeOnDisk("entry1") - 1);
         cache.put("entry1", entry1);
         Cache.Entry entry2 = randomData(MAX_SIZE / 3 - getEntrySizeOnDisk("entry2") - 1);
@@ -249,7 +268,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testTrimWithPartialEvictions() {
+    public void testTrimWithPartialEvictions()
+    {
         Cache.Entry entry1 = randomData(MAX_SIZE / 3 - getEntrySizeOnDisk("entry1") - 1);
         cache.put("entry1", entry1);
         Cache.Entry entry2 = randomData(MAX_SIZE / 3 - getEntrySizeOnDisk("entry2") - 1);
@@ -271,7 +291,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testLargeEntryDoesntClearCache() {
+    public void testLargeEntryDoesntClearCache()
+    {
         // Writing a large entry to an empty cache should succeed
         Cache.Entry largeEntry = randomData(MAX_SIZE - getEntrySizeOnDisk("largeEntry") - 1);
         cache.put("largeEntry", largeEntry);
@@ -295,7 +316,8 @@ public class DiskBasedCacheTest {
 
     @Test
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    public void testGetBadMagic() throws IOException {
+    public void testGetBadMagic() throws IOException
+    {
         // Cache something
         Cache.Entry entry = randomData(1023);
         cache.put("key", entry);
@@ -305,9 +327,12 @@ public class DiskBasedCacheTest {
         File cacheFolder = temporaryFolder.getRoot();
         File file = cacheFolder.listFiles()[0];
         FileOutputStream fos = new FileOutputStream(file);
-        try {
+        try
+        {
             DiskBasedCache.writeInt(fos, 0); // overwrite magic
-        } finally {
+        }
+        finally
+        {
             //noinspection ThrowFromFinallyBlock
             fos.close();
         }
@@ -318,7 +343,8 @@ public class DiskBasedCacheTest {
 
     @Test
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    public void testGetWrongKey() throws IOException {
+    public void testGetWrongKey() throws IOException
+    {
         // Cache something
         Cache.Entry entry = randomData(1023);
         cache.put("key", entry);
@@ -328,11 +354,14 @@ public class DiskBasedCacheTest {
         File cacheFolder = temporaryFolder.getRoot();
         File file = cacheFolder.listFiles()[0];
         FileOutputStream fos = new FileOutputStream(file);
-        try {
+        try
+        {
             // Overwrite with a different key
             CacheHeader wrongHeader = new CacheHeader("bad", entry);
             wrongHeader.writeHeader(fos);
-        } finally {
+        }
+        finally
+        {
             //noinspection ThrowFromFinallyBlock
             fos.close();
         }
@@ -345,7 +374,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testStreamToBytesNegativeLength() throws IOException {
+    public void testStreamToBytesNegativeLength() throws IOException
+    {
         byte[] data = new byte[1];
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(data), data.length);
@@ -354,7 +384,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testStreamToBytesExcessiveLength() throws IOException {
+    public void testStreamToBytesExcessiveLength() throws IOException
+    {
         byte[] data = new byte[1];
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(data), data.length);
@@ -363,7 +394,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testStreamToBytesOverflow() throws IOException {
+    public void testStreamToBytesOverflow() throws IOException
+    {
         byte[] data = new byte[0];
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(data), 0x100000000L);
@@ -372,7 +404,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testReadHeaderListWithNegativeSize() throws IOException {
+    public void testReadHeaderListWithNegativeSize() throws IOException
+    {
         // If a cached header list is corrupted and begins with a negative size,
         // verify that readHeaderList will throw an IOException.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -386,7 +419,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testReadHeaderListWithGinormousSize() throws IOException {
+    public void testReadHeaderListWithGinormousSize() throws IOException
+    {
         // If a cached header list is corrupted and begins with 2GB size, verify
         // that readHeaderList will throw EOFException rather than OutOfMemoryError.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -399,7 +433,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testFileIsDeletedWhenWriteHeaderFails() throws IOException {
+    public void testFileIsDeletedWhenWriteHeaderFails() throws IOException
+    {
         // Create DataOutputStream that throws IOException
         OutputStream mockedOutputStream = spy(OutputStream.class);
         doThrow(IOException.class).when(mockedOutputStream).write(anyInt());
@@ -421,7 +456,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testIOExceptionInInitialize() throws IOException {
+    public void testIOExceptionInInitialize() throws IOException
+    {
         // Cache a few kilobytes
         cache.put("kilobyte", randomData(1024));
         cache.put("kilobyte2", randomData(1024));
@@ -452,11 +488,13 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void testManyResponseHeaders() {
+    public void testManyResponseHeaders()
+    {
         Cache.Entry entry = new Cache.Entry();
         entry.data = new byte[0];
         entry.responseHeaders = new HashMap<>();
-        for (int i = 0; i < 0xFFFF; i++) {
+        for (int i = 0; i < 0xFFFF; i++)
+        {
             entry.responseHeaders.put(Integer.toString(i), "");
         }
         cache.put("key", entry);
@@ -464,15 +502,19 @@ public class DiskBasedCacheTest {
 
     @Test
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    public void testCountingInputStreamByteCount() throws IOException {
+    public void testCountingInputStreamByteCount() throws IOException
+    {
         // Write some bytes
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         //noinspection ThrowFromFinallyBlock
-        try {
+        try
+        {
             DiskBasedCache.writeInt(out, 1);
             DiskBasedCache.writeLong(out, -1L);
             DiskBasedCache.writeString(out, "hamburger");
-        } finally {
+        }
+        finally
+        {
             //noinspection ThrowFromFinallyBlock
             out.close();
         }
@@ -481,7 +523,8 @@ public class DiskBasedCacheTest {
         // Read the bytes and compare the counts
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(out.toByteArray()), bytesWritten);
-        try {
+        try
+        {
             assertThat(cis.bytesRemaining(), is(bytesWritten));
             assertThat(cis.bytesRead(), is(0L));
             assertThat(DiskBasedCache.readInt(cis), is(1));
@@ -489,7 +532,9 @@ public class DiskBasedCacheTest {
             assertThat(DiskBasedCache.readString(cis), is("hamburger"));
             assertThat(cis.bytesRead(), is(bytesWritten));
             assertThat(cis.bytesRemaining(), is(0L));
-        } finally {
+        }
+        finally
+        {
             //noinspection ThrowFromFinallyBlock
             cis.close();
         }
@@ -498,14 +543,16 @@ public class DiskBasedCacheTest {
     /* Serialization tests */
 
     @Test
-    public void testEmptyReadThrowsEOF() throws IOException {
-        ByteArrayInputStream empty = new ByteArrayInputStream(new byte[] {});
+    public void testEmptyReadThrowsEOF() throws IOException
+    {
+        ByteArrayInputStream empty = new ByteArrayInputStream(new byte[]{});
         exception.expect(EOFException.class);
         DiskBasedCache.readInt(empty);
     }
 
     @Test
-    public void serializeInt() throws IOException {
+    public void serializeInt() throws IOException
+    {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DiskBasedCache.writeInt(baos, 0);
         DiskBasedCache.writeInt(baos, 19791214);
@@ -521,7 +568,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void serializeLong() throws Exception {
+    public void serializeLong() throws Exception
+    {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DiskBasedCache.writeLong(baos, 0);
         DiskBasedCache.writeLong(baos, 31337);
@@ -541,7 +589,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void serializeString() throws Exception {
+    public void serializeString() throws Exception
+    {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DiskBasedCache.writeString(baos, "");
         DiskBasedCache.writeString(baos, "This is a string.");
@@ -554,7 +603,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void serializeHeaders() throws Exception {
+    public void serializeHeaders() throws Exception
+    {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         List<Header> empty = new ArrayList<>();
         DiskBasedCache.writeHeaderList(empty, baos);
@@ -584,7 +634,8 @@ public class DiskBasedCacheTest {
     }
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         assertNotNull(DiskBasedCache.class.getConstructor(File.class, int.class));
         assertNotNull(DiskBasedCache.class.getConstructor(File.class));
@@ -594,7 +645,8 @@ public class DiskBasedCacheTest {
 
     /* Test helpers */
 
-    private void assertThatEntriesAreEqual(Cache.Entry actual, Cache.Entry expected) {
+    private void assertThatEntriesAreEqual(Cache.Entry actual, Cache.Entry expected)
+    {
         assertThat(actual.data, is(equalTo(expected.data)));
         assertThat(actual.etag, is(equalTo(expected.etag)));
         assertThat(actual.lastModified, is(equalTo(expected.lastModified)));
@@ -604,7 +656,8 @@ public class DiskBasedCacheTest {
         assertThat(actual.ttl, is(equalTo(expected.ttl)));
     }
 
-    private Cache.Entry randomData(int length) {
+    private Cache.Entry randomData(int length)
+    {
         Cache.Entry entry = new Cache.Entry();
         byte[] data = new byte[length];
         new Random(42).nextBytes(data); // explicit seed for reproducible results
@@ -612,11 +665,13 @@ public class DiskBasedCacheTest {
         return entry;
     }
 
-    private File[] listCachedFiles() {
+    private File[] listCachedFiles()
+    {
         return temporaryFolder.getRoot().listFiles();
     }
 
-    private int getEntrySizeOnDisk(String key) {
+    private int getEntrySizeOnDisk(String key)
+    {
         // Header size is:
         // 4 bytes for magic int
         // 8 + len(key) bytes for key (long length)

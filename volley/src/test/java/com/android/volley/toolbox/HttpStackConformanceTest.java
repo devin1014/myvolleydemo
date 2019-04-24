@@ -1,24 +1,8 @@
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
@@ -33,104 +17,150 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 
-/** Tests to validate that HttpStack implementations conform with expected behavior. */
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests to validate that HttpStack implementations conform with expected behavior.
+ */
 @RunWith(RobolectricTestRunner.class)
-public class HttpStackConformanceTest {
-    @Mock private RetryPolicy mMockRetryPolicy;
-    @Mock private Request mMockRequest;
+public class HttpStackConformanceTest
+{
+    @Mock
+    private RetryPolicy mMockRetryPolicy;
+    @Mock
+    private Request mMockRequest;
 
-    @Mock private HttpURLConnection mMockConnection;
-    @Mock private OutputStream mMockOutputStream;
-    @Spy private HurlStack mHurlStack = new HurlStack();
+    @Mock
+    private HttpURLConnection mMockConnection;
+    @Mock
+    private OutputStream mMockOutputStream;
+    @Spy
+    private HurlStack mHurlStack = new HurlStack();
 
-    @Mock private HttpClient mMockHttpClient;
+    @Mock
+    private HttpClient mMockHttpClient;
     private HttpClientStack mHttpClientStack;
 
     private final TestCase[] mTestCases =
-            new TestCase[] {
-                // TestCase for HurlStack.
-                new TestCase() {
-                    @Override
-                    public HttpStack getStack() {
-                        return mHurlStack;
-                    }
+            new TestCase[]{
+                    // TestCase for HurlStack.
+                    new TestCase()
+                    {
+                        @Override
+                        public HttpStack getStack()
+                        {
+                            return mHurlStack;
+                        }
 
-                    @Override
-                    public void setOutputHeaderMap(final Map<String, String> outputHeaderMap) {
-                        doAnswer(
-                                        new Answer<Void>() {
+                        @Override
+                        public void setOutputHeaderMap(final Map<String, String> outputHeaderMap)
+                        {
+                            doAnswer(
+                                    new Answer<Void>()
+                                    {
+                                        @Override
+                                        public Void answer(InvocationOnMock invocation)
+                                        {
+                                            outputHeaderMap.put(
+                                                    invocation.<String>getArgument(0),
+                                                    invocation.<String>getArgument(1));
+                                            return null;
+                                        }
+                                    })
+                                    .when(mMockConnection)
+                                    .setRequestProperty(anyString(), anyString());
+                            doAnswer(
+                                    new Answer<Map<String, List<String>>>()
+                                    {
+                                        @Override
+                                        public Map<String, List<String>> answer(
+                                                InvocationOnMock invocation)
+                                        {
+                                            Map<String, List<String>> result = new HashMap<>();
+                                            for (Map.Entry<String, String> entry :
+                                                    outputHeaderMap.entrySet())
+                                            {
+                                                result.put(
+                                                        entry.getKey(),
+                                                        Collections.singletonList(
+                                                                entry.getValue()));
+                                            }
+                                            return result;
+                                        }
+                                    })
+                                    .when(mMockConnection)
+                                    .getRequestProperties();
+                        }
+                    },
+
+                    // TestCase for HttpClientStack.
+                    new TestCase()
+                    {
+                        @Override
+                        public HttpStack getStack()
+                        {
+                            return mHttpClientStack;
+                        }
+
+                        @Override
+                        public void setOutputHeaderMap(final Map<String, String> outputHeaderMap)
+                        {
+                            try
+                            {
+                                doAnswer(
+                                        new Answer<Void>()
+                                        {
                                             @Override
-                                            public Void answer(InvocationOnMock invocation) {
-                                                outputHeaderMap.put(
-                                                        invocation.<String>getArgument(0),
-                                                        invocation.<String>getArgument(1));
+                                            public Void answer(InvocationOnMock invocation)
+                                                    throws Throwable
+                                            {
+                                                HttpRequest request = invocation.getArgument(0);
+                                                for (Header header : request.getAllHeaders())
+                                                {
+                                                    if (outputHeaderMap.containsKey(
+                                                            header.getName()))
+                                                    {
+                                                        fail(
+                                                                "Multiple values for header "
+                                                                        + header.getName());
+                                                    }
+                                                    outputHeaderMap.put(
+                                                            header.getName(),
+                                                            header.getValue());
+                                                }
                                                 return null;
                                             }
                                         })
-                                .when(mMockConnection)
-                                .setRequestProperty(anyString(), anyString());
-                        doAnswer(
-                                        new Answer<Map<String, List<String>>>() {
-                                            @Override
-                                            public Map<String, List<String>> answer(
-                                                    InvocationOnMock invocation) {
-                                                Map<String, List<String>> result = new HashMap<>();
-                                                for (Map.Entry<String, String> entry :
-                                                        outputHeaderMap.entrySet()) {
-                                                    result.put(
-                                                            entry.getKey(),
-                                                            Collections.singletonList(
-                                                                    entry.getValue()));
-                                                }
-                                                return result;
-                                            }
-                                        })
-                                .when(mMockConnection)
-                                .getRequestProperties();
-                    }
-                },
-
-                // TestCase for HttpClientStack.
-                new TestCase() {
-                    @Override
-                    public HttpStack getStack() {
-                        return mHttpClientStack;
-                    }
-
-                    @Override
-                    public void setOutputHeaderMap(final Map<String, String> outputHeaderMap) {
-                        try {
-                            doAnswer(
-                                            new Answer<Void>() {
-                                                @Override
-                                                public Void answer(InvocationOnMock invocation)
-                                                        throws Throwable {
-                                                    HttpRequest request = invocation.getArgument(0);
-                                                    for (Header header : request.getAllHeaders()) {
-                                                        if (outputHeaderMap.containsKey(
-                                                                header.getName())) {
-                                                            fail(
-                                                                    "Multiple values for header "
-                                                                            + header.getName());
-                                                        }
-                                                        outputHeaderMap.put(
-                                                                header.getName(),
-                                                                header.getValue());
-                                                    }
-                                                    return null;
-                                                }
-                                            })
-                                    .when(mMockHttpClient)
-                                    .execute(any(HttpUriRequest.class));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                                        .when(mMockHttpClient)
+                                        .execute(any(HttpUriRequest.class));
+                            }
+                            catch (IOException e)
+                            {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
-                }
             };
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         MockitoAnnotations.initMocks(this);
         mHttpClientStack = spy(new HttpClientStack(mMockHttpClient));
 
@@ -141,7 +171,8 @@ public class HttpStackConformanceTest {
     }
 
     @Test
-    public void headerPrecedence() throws Exception {
+    public void headerPrecedence() throws Exception
+    {
         Map<String, String> additionalHeaders = new HashMap<>();
         additionalHeaders.put("A", "AddlA");
         additionalHeaders.put("B", "AddlB");
@@ -155,7 +186,8 @@ public class HttpStackConformanceTest {
         when(mMockRequest.getBody()).thenReturn(new byte[0]);
         when(mMockRequest.getBodyContentType()).thenReturn("BodyContentType");
 
-        for (TestCase testCase : mTestCases) {
+        for (TestCase testCase : mTestCases)
+        {
             // Test once without a Content-Type header in getHeaders().
             Map<String, String> combinedHeaders = new HashMap<>();
             testCase.setOutputHeaderMap(combinedHeaders);
@@ -184,7 +216,8 @@ public class HttpStackConformanceTest {
         }
     }
 
-    private interface TestCase {
+    private interface TestCase
+    {
         HttpStack getStack();
 
         void setOutputHeaderMap(Map<String, String> outputHeaderMap);

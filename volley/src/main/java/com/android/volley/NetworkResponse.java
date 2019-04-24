@@ -23,20 +23,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/** Data and headers returned from {@link Network#performRequest(Request)}. */
-public class NetworkResponse {
+/**
+ * Data and headers returned from {@link Network#performRequest(Request)}.
+ */
+public class NetworkResponse
+{
 
     /**
      * Creates a new network response.
      *
-     * @param statusCode the HTTP status code
-     * @param data Response body
-     * @param headers Headers returned with this response, or null for none
-     * @param notModified True if the server returned a 304 and the data was already in cache
+     * @param statusCode    the HTTP status code
+     * @param data          Response body
+     * @param headers       Headers returned with this response, or null for none
+     * @param notModified   True if the server returned a 304 and the data was already in cache
      * @param networkTimeMs Round-trip network time to receive network response
      * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
-     *     cannot handle server responses containing multiple headers with the same name. This
-     *     constructor may be removed in a future release of Volley.
+     * cannot handle server responses containing multiple headers with the same name. This
+     * constructor may be removed in a future release of Volley.
      */
     @Deprecated
     public NetworkResponse(
@@ -44,42 +47,45 @@ public class NetworkResponse {
             byte[] data,
             Map<String, String> headers,
             boolean notModified,
-            long networkTimeMs) {
+            long networkTimeMs)
+    {
         this(statusCode, data, headers, toAllHeaderList(headers), notModified, networkTimeMs);
     }
 
     /**
      * Creates a new network response.
      *
-     * @param statusCode the HTTP status code
-     * @param data Response body
-     * @param notModified True if the server returned a 304 and the data was already in cache
+     * @param statusCode    the HTTP status code
+     * @param data          Response body
+     * @param notModified   True if the server returned a 304 and the data was already in cache
      * @param networkTimeMs Round-trip network time to receive network response
-     * @param allHeaders All headers returned with this response, or null for none
+     * @param allHeaders    All headers returned with this response, or null for none
      */
     public NetworkResponse(
             int statusCode,
             byte[] data,
             boolean notModified,
             long networkTimeMs,
-            List<Header> allHeaders) {
+            List<Header> allHeaders)
+    {
         this(statusCode, data, toHeaderMap(allHeaders), allHeaders, notModified, networkTimeMs);
     }
 
     /**
      * Creates a new network response.
      *
-     * @param statusCode the HTTP status code
-     * @param data Response body
-     * @param headers Headers returned with this response, or null for none
+     * @param statusCode  the HTTP status code
+     * @param data        Response body
+     * @param headers     Headers returned with this response, or null for none
      * @param notModified True if the server returned a 304 and the data was already in cache
      * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
-     *     cannot handle server responses containing multiple headers with the same name. This
-     *     constructor may be removed in a future release of Volley.
+     * cannot handle server responses containing multiple headers with the same name. This
+     * constructor may be removed in a future release of Volley.
      */
     @Deprecated
     public NetworkResponse(
-            int statusCode, byte[] data, Map<String, String> headers, boolean notModified) {
+            int statusCode, byte[] data, Map<String, String> headers, boolean notModified)
+    {
         this(statusCode, data, headers, notModified, /* networkTimeMs= */ 0);
     }
 
@@ -88,7 +94,8 @@ public class NetworkResponse {
      *
      * @param data Response body
      */
-    public NetworkResponse(byte[] data) {
+    public NetworkResponse(byte[] data)
+    {
         this(
                 HttpURLConnection.HTTP_OK,
                 data,
@@ -100,14 +107,15 @@ public class NetworkResponse {
     /**
      * Creates a new network response for an OK response.
      *
-     * @param data Response body
+     * @param data    Response body
      * @param headers Headers returned with this response, or null for none
      * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
-     *     cannot handle server responses containing multiple headers with the same name. This
-     *     constructor may be removed in a future release of Volley.
+     * cannot handle server responses containing multiple headers with the same name. This
+     * constructor may be removed in a future release of Volley.
      */
     @Deprecated
-    public NetworkResponse(byte[] data, Map<String, String> headers) {
+    public NetworkResponse(byte[] data, Map<String, String> headers)
+    {
         this(
                 HttpURLConnection.HTTP_OK,
                 data,
@@ -122,23 +130,31 @@ public class NetworkResponse {
             Map<String, String> headers,
             List<Header> allHeaders,
             boolean notModified,
-            long networkTimeMs) {
+            long networkTimeMs)
+    {
         this.statusCode = statusCode;
         this.data = data;
         this.headers = headers;
-        if (allHeaders == null) {
+        if (allHeaders == null)
+        {
             this.allHeaders = null;
-        } else {
+        }
+        else
+        {
             this.allHeaders = Collections.unmodifiableList(allHeaders);
         }
         this.notModified = notModified;
         this.networkTimeMs = networkTimeMs;
     }
 
-    /** The HTTP status code. */
+    /**
+     * The HTTP status code.
+     */
     public final int statusCode;
 
-    /** Raw data from this response. */
+    /**
+     * Raw data from this response.
+     */
     public final byte[] data;
 
     /**
@@ -152,39 +168,53 @@ public class NetworkResponse {
      */
     public final Map<String, String> headers;
 
-    /** All response headers. Must not be mutated directly. */
+    /**
+     * All response headers. Must not be mutated directly.
+     */
     public final List<Header> allHeaders;
 
-    /** True if the server returned a 304 (Not Modified). */
+    /**
+     * True if the server returned a 304 (Not Modified).
+     */
     public final boolean notModified;
 
-    /** Network roundtrip time in milliseconds. */
+    /**
+     * Network roundtrip time in milliseconds.
+     */
     public final long networkTimeMs;
 
-    private static Map<String, String> toHeaderMap(List<Header> allHeaders) {
-        if (allHeaders == null) {
+    private static Map<String, String> toHeaderMap(List<Header> allHeaders)
+    {
+        if (allHeaders == null)
+        {
             return null;
         }
-        if (allHeaders.isEmpty()) {
+        if (allHeaders.isEmpty())
+        {
             return Collections.emptyMap();
         }
         Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         // Later elements in the list take precedence.
-        for (Header header : allHeaders) {
+        for (Header header : allHeaders)
+        {
             headers.put(header.getName(), header.getValue());
         }
         return headers;
     }
 
-    private static List<Header> toAllHeaderList(Map<String, String> headers) {
-        if (headers == null) {
+    private static List<Header> toAllHeaderList(Map<String, String> headers)
+    {
+        if (headers == null)
+        {
             return null;
         }
-        if (headers.isEmpty()) {
+        if (headers.isEmpty())
+        {
             return Collections.emptyList();
         }
         List<Header> allHeaders = new ArrayList<>(headers.size());
-        for (Map.Entry<String, String> header : headers.entrySet()) {
+        for (Map.Entry<String, String> header : headers.entrySet())
+        {
             allHeaders.add(new Header(header.getKey(), header.getValue()));
         }
         return allHeaders;

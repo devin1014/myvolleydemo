@@ -1,19 +1,10 @@
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.Header;
 import com.android.volley.Request;
 import com.android.volley.mock.TestRequest;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,26 +12,43 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
 @RunWith(RobolectricTestRunner.class)
-public class BaseHttpStackTest {
+public class BaseHttpStackTest
+{
     private static final Request<?> REQUEST = new TestRequest.Get();
     private static final Map<String, String> ADDITIONAL_HEADERS = Collections.emptyMap();
 
-    @Mock private InputStream mContent;
+    @Mock
+    private InputStream mContent;
 
     @Before
-    public void setUp() {
+    public void setUp()
+    {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void legacyRequestWithoutBody() throws Exception {
+    public void legacyRequestWithoutBody() throws Exception
+    {
         BaseHttpStack stack =
-                new BaseHttpStack() {
+                new BaseHttpStack()
+                {
                     @Override
                     public HttpResponse executeRequest(
                             Request<?> request, Map<String, String> additionalHeaders)
-                            throws IOException, AuthFailureError {
+                            throws IOException, AuthFailureError
+                    {
                         assertSame(REQUEST, request);
                         assertSame(ADDITIONAL_HEADERS, additionalHeaders);
                         return new HttpResponse(12345, Collections.<Header>emptyList());
@@ -53,13 +61,16 @@ public class BaseHttpStackTest {
     }
 
     @Test
-    public void legacyResponseWithBody() throws Exception {
+    public void legacyResponseWithBody() throws Exception
+    {
         BaseHttpStack stack =
-                new BaseHttpStack() {
+                new BaseHttpStack()
+                {
                     @Override
                     public HttpResponse executeRequest(
                             Request<?> request, Map<String, String> additionalHeaders)
-                            throws IOException, AuthFailureError {
+                            throws IOException, AuthFailureError
+                    {
                         assertSame(REQUEST, request);
                         assertSame(ADDITIONAL_HEADERS, additionalHeaders);
                         return new HttpResponse(
@@ -74,13 +85,16 @@ public class BaseHttpStackTest {
     }
 
     @Test
-    public void legacyResponseHeaders() throws Exception {
+    public void legacyResponseHeaders() throws Exception
+    {
         BaseHttpStack stack =
-                new BaseHttpStack() {
+                new BaseHttpStack()
+                {
                     @Override
                     public HttpResponse executeRequest(
                             Request<?> request, Map<String, String> additionalHeaders)
-                            throws IOException, AuthFailureError {
+                            throws IOException, AuthFailureError
+                    {
                         assertSame(REQUEST, request);
                         assertSame(ADDITIONAL_HEADERS, additionalHeaders);
                         List<Header> headers = new ArrayList<>();

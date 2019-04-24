@@ -16,18 +16,21 @@
 
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertNotNull;
-
 import com.android.volley.Request;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(RobolectricTestRunner.class)
-public class RequestFutureTest {
+public class RequestFutureTest
+{
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         assertNotNull(RequestFuture.class.getMethod("newFuture"));
         assertNotNull(RequestFuture.class.getMethod("setRequest", Request.class));

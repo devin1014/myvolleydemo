@@ -16,18 +16,21 @@
 
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertNotNull;
-
 import com.android.volley.Cache;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(RobolectricTestRunner.class)
-public class CacheTest {
+public class CacheTest
+{
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         assertNotNull(Cache.class.getMethod("get", String.class));
         assertNotNull(Cache.class.getMethod("put", String.class, Cache.Entry.class));

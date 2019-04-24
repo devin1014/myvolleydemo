@@ -16,16 +16,6 @@
 
 package com.android.volley.toolbox;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache.Entry;
 import com.android.volley.Header;
@@ -37,6 +27,13 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.mock.MockHttpStack;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,25 +45,35 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(RobolectricTestRunner.class)
-public class BasicNetworkTest {
+public class BasicNetworkTest
+{
 
-    @Mock private Request<String> mMockRequest;
-    @Mock private RetryPolicy mMockRetryPolicy;
+    @Mock
+    private Request<String> mMockRequest;
+    @Mock
+    private RetryPolicy mMockRetryPolicy;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         initMocks(this);
     }
 
     @Test
-    public void headersAndPostParams() throws Exception {
+    public void headersAndPostParams() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         InputStream responseStream =
                 new ByteArrayInputStream("foobar".getBytes(StandardCharsets.UTF_8));
@@ -91,7 +98,8 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void notModified() throws Exception {
+    public void notModified() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         List<Header> headers = new ArrayList<>();
         headers.add(new Header("ServerKeyA", "ServerValueA"));
@@ -125,7 +133,8 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void notModified_legacyCache() throws Exception {
+    public void notModified_legacyCache() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         List<Header> headers = new ArrayList<>();
         headers.add(new Header("ServerKeyA", "ServerValueA"));
@@ -159,16 +168,20 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void socketTimeout() throws Exception {
+    public void socketTimeout() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         mockHttpStack.setExceptionToThrow(new SocketTimeoutException());
         BasicNetwork httpNetwork = new BasicNetwork(mockHttpStack);
         Request<String> request = buildRequest();
         request.setRetryPolicy(mMockRetryPolicy);
         doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-        try {
+        try
+        {
             httpNetwork.performRequest(request);
-        } catch (VolleyError e) {
+        }
+        catch (VolleyError e)
+        {
             // expected
         }
         // should retry socket timeouts
@@ -176,16 +189,20 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void noConnection() throws Exception {
+    public void noConnection() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         mockHttpStack.setExceptionToThrow(new IOException());
         BasicNetwork httpNetwork = new BasicNetwork(mockHttpStack);
         Request<String> request = buildRequest();
         request.setRetryPolicy(mMockRetryPolicy);
         doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-        try {
+        try
+        {
             httpNetwork.performRequest(request);
-        } catch (VolleyError e) {
+        }
+        catch (VolleyError e)
+        {
             // expected
         }
         // should not retry when there is no connection
@@ -193,7 +210,8 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void unauthorized() throws Exception {
+    public void unauthorized() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         HttpResponse fakeResponse = new HttpResponse(401, Collections.<Header>emptyList());
         mockHttpStack.setResponseToReturn(fakeResponse);
@@ -201,9 +219,12 @@ public class BasicNetworkTest {
         Request<String> request = buildRequest();
         request.setRetryPolicy(mMockRetryPolicy);
         doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-        try {
+        try
+        {
             httpNetwork.performRequest(request);
-        } catch (VolleyError e) {
+        }
+        catch (VolleyError e)
+        {
             // expected
         }
         // should retry in case it's an auth failure.
@@ -211,7 +232,8 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void forbidden() throws Exception {
+    public void forbidden() throws Exception
+    {
         MockHttpStack mockHttpStack = new MockHttpStack();
         HttpResponse fakeResponse = new HttpResponse(403, Collections.<Header>emptyList());
         mockHttpStack.setResponseToReturn(fakeResponse);
@@ -219,9 +241,12 @@ public class BasicNetworkTest {
         Request<String> request = buildRequest();
         request.setRetryPolicy(mMockRetryPolicy);
         doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-        try {
+        try
+        {
             httpNetwork.performRequest(request);
-        } catch (VolleyError e) {
+        }
+        catch (VolleyError e)
+        {
             // expected
         }
         // should retry in case it's an auth failure.
@@ -229,8 +254,10 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void redirect() throws Exception {
-        for (int i = 300; i <= 399; i++) {
+    public void redirect() throws Exception
+    {
+        for (int i = 300; i <= 399; i++)
+        {
             MockHttpStack mockHttpStack = new MockHttpStack();
             HttpResponse fakeResponse = new HttpResponse(i, Collections.<Header>emptyList());
             mockHttpStack.setResponseToReturn(fakeResponse);
@@ -238,9 +265,12 @@ public class BasicNetworkTest {
             Request<String> request = buildRequest();
             request.setRetryPolicy(mMockRetryPolicy);
             doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-            try {
+            try
+            {
                 httpNetwork.performRequest(request);
-            } catch (VolleyError e) {
+            }
+            catch (VolleyError e)
+            {
                 // expected
             }
             // should not retry 300 responses.
@@ -250,9 +280,12 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void otherClientError() throws Exception {
-        for (int i = 400; i <= 499; i++) {
-            if (i == 401 || i == 403) {
+    public void otherClientError() throws Exception
+    {
+        for (int i = 400; i <= 499; i++)
+        {
+            if (i == 401 || i == 403)
+            {
                 // covered above.
                 continue;
             }
@@ -263,9 +296,12 @@ public class BasicNetworkTest {
             Request<String> request = buildRequest();
             request.setRetryPolicy(mMockRetryPolicy);
             doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-            try {
+            try
+            {
                 httpNetwork.performRequest(request);
-            } catch (VolleyError e) {
+            }
+            catch (VolleyError e)
+            {
                 // expected
             }
             // should not retry other 400 errors.
@@ -275,8 +311,10 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void serverError_enableRetries() throws Exception {
-        for (int i = 500; i <= 599; i++) {
+    public void serverError_enableRetries() throws Exception
+    {
+        for (int i = 500; i <= 599; i++)
+        {
             MockHttpStack mockHttpStack = new MockHttpStack();
             HttpResponse fakeResponse = new HttpResponse(i, Collections.<Header>emptyList());
             mockHttpStack.setResponseToReturn(fakeResponse);
@@ -285,9 +323,12 @@ public class BasicNetworkTest {
             request.setRetryPolicy(mMockRetryPolicy);
             request.setShouldRetryServerErrors(true);
             doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-            try {
+            try
+            {
                 httpNetwork.performRequest(request);
-            } catch (VolleyError e) {
+            }
+            catch (VolleyError e)
+            {
                 // expected
             }
             // should retry all 500 errors
@@ -297,8 +338,10 @@ public class BasicNetworkTest {
     }
 
     @Test
-    public void serverError_disableRetries() throws Exception {
-        for (int i = 500; i <= 599; i++) {
+    public void serverError_disableRetries() throws Exception
+    {
+        for (int i = 500; i <= 599; i++)
+        {
             MockHttpStack mockHttpStack = new MockHttpStack();
             HttpResponse fakeResponse = new HttpResponse(i, Collections.<Header>emptyList());
             mockHttpStack.setResponseToReturn(fakeResponse);
@@ -306,9 +349,12 @@ public class BasicNetworkTest {
             Request<String> request = buildRequest();
             request.setRetryPolicy(mMockRetryPolicy);
             doThrow(new VolleyError()).when(mMockRetryPolicy).retry(any(VolleyError.class));
-            try {
+            try
+            {
                 httpNetwork.performRequest(request);
-            } catch (VolleyError e) {
+            }
+            catch (VolleyError e)
+            {
                 // expected
             }
             // should not retry any 500 error w/ HTTP 500 retries turned off (the default).
@@ -317,26 +363,33 @@ public class BasicNetworkTest {
         }
     }
 
-    private static Request<String> buildRequest() {
-        return new Request<String>(Request.Method.GET, "http://foo", null) {
+    private static Request<String> buildRequest()
+    {
+        return new Request<String>(Request.Method.GET, "http://foo", null)
+        {
 
             @Override
-            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+            protected Response<String> parseNetworkResponse(NetworkResponse response)
+            {
                 return null;
             }
 
             @Override
-            protected void deliverResponse(String response) {}
+            protected void deliverResponse(String response)
+            {
+            }
 
             @Override
-            public Map<String, String> getHeaders() {
+            public Map<String, String> getHeaders()
+            {
                 Map<String, String> result = new HashMap<String, String>();
                 result.put("requestheader", "foo");
                 return result;
             }
 
             @Override
-            public Map<String, String> getParams() {
+            public Map<String, String> getParams()
+            {
                 Map<String, String> result = new HashMap<String, String>();
                 result.put("requestpost", "foo");
                 return result;

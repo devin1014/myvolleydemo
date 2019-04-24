@@ -16,7 +16,21 @@
 
 package com.android.volley;
 
-import static org.junit.Assert.assertEquals;
+import com.android.volley.toolbox.NoCache;
+import com.android.volley.toolbox.StringRequest;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
+
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -28,40 +42,34 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.android.volley.toolbox.NoCache;
-import com.android.volley.toolbox.StringRequest;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.concurrent.BlockingQueue;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
-
 @RunWith(RobolectricTestRunner.class)
-public class NetworkDispatcherTest {
+public class NetworkDispatcherTest
+{
     private NetworkDispatcher mDispatcher;
-    private @Mock ResponseDelivery mDelivery;
-    private @Mock BlockingQueue<Request<?>> mNetworkQueue;
-    private @Mock Network mNetwork;
-    private @Mock Cache mCache;
+    private @Mock
+    ResponseDelivery mDelivery;
+    private @Mock
+    BlockingQueue<Request<?>> mNetworkQueue;
+    private @Mock
+    Network mNetwork;
+    private @Mock
+    Cache mCache;
     private StringRequest mRequest;
 
     private static final byte[] CANNED_DATA =
             "Ceci n'est pas une vraie reponse".getBytes(StandardCharsets.UTF_8);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         initMocks(this);
         mRequest = new StringRequest(Request.Method.GET, "http://foo", null, null);
         mDispatcher = new NetworkDispatcher(mNetworkQueue, mNetwork, mCache, mDelivery);
     }
 
     @Test
-    public void successPostsResponse() throws Exception {
+    public void successPostsResponse() throws Exception
+    {
         when(mNetwork.performRequest(any(Request.class)))
                 .thenReturn(new NetworkResponse(CANNED_DATA));
         mDispatcher.processRequest(mRequest);
@@ -75,7 +83,8 @@ public class NetworkDispatcherTest {
     }
 
     @Test
-    public void successNotifiesListener() throws Exception {
+    public void successNotifiesListener() throws Exception
+    {
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(new NoCache(), mNetwork, 0, mDelivery);
         queue.addRequestEventListener(listener);
@@ -97,7 +106,8 @@ public class NetworkDispatcherTest {
     }
 
     @Test
-    public void exceptionPostsError() throws Exception {
+    public void exceptionPostsError() throws Exception
+    {
         when(mNetwork.performRequest(any(Request.class))).thenThrow(new ServerError());
         mDispatcher.processRequest(mRequest);
 
@@ -106,7 +116,8 @@ public class NetworkDispatcherTest {
     }
 
     @Test
-    public void exceptionNotifiesListener() throws Exception {
+    public void exceptionNotifiesListener() throws Exception
+    {
         RequestQueue.RequestEventListener listener = mock(RequestQueue.RequestEventListener.class);
         RequestQueue queue = new RequestQueue(new NoCache(), mNetwork, 0, mDelivery);
         queue.addRequestEventListener(listener);
@@ -127,14 +138,16 @@ public class NetworkDispatcherTest {
     }
 
     @Test
-    public void shouldCacheFalse() throws Exception {
+    public void shouldCacheFalse() throws Exception
+    {
         mRequest.setShouldCache(false);
         mDispatcher.processRequest(mRequest);
         verify(mCache, never()).put(anyString(), any(Cache.Entry.class));
     }
 
     @Test
-    public void shouldCacheTrue() throws Exception {
+    public void shouldCacheTrue() throws Exception
+    {
         when(mNetwork.performRequest(any(Request.class)))
                 .thenReturn(new NetworkResponse(CANNED_DATA));
         mRequest.setShouldCache(true);

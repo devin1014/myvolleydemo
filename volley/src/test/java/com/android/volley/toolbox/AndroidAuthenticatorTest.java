@@ -16,10 +16,6 @@
 
 package com.android.volley.toolbox;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
@@ -27,7 +23,9 @@ import android.accounts.AuthenticatorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import com.android.volley.AuthFailureError;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,22 +34,31 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @RunWith(RobolectricTestRunner.class)
-public class AndroidAuthenticatorTest {
-    @Mock private AccountManager mAccountManager;
-    @Mock private AccountManagerFuture<Bundle> mFuture;
+public class AndroidAuthenticatorTest
+{
+    @Mock
+    private AccountManager mAccountManager;
+    @Mock
+    private AccountManagerFuture<Bundle> mFuture;
     private Account mAccount;
     private AndroidAuthenticator mAuthenticator;
 
     @Before
-    public void setUp() {
+    public void setUp()
+    {
         MockitoAnnotations.initMocks(this);
         mAccount = new Account("coolperson", "cooltype");
         mAuthenticator = new AndroidAuthenticator(mAccountManager, mAccount, "cooltype", false);
     }
 
     @Test(expected = AuthFailureError.class)
-    public void failedGetAuthToken() throws Exception {
+    public void failedGetAuthToken() throws Exception
+    {
         when(mAccountManager.getAuthToken(mAccount, "cooltype", false, null, null))
                 .thenReturn(mFuture);
         when(mFuture.getResult()).thenThrow(new AuthenticatorException("sadness!"));
@@ -59,7 +66,8 @@ public class AndroidAuthenticatorTest {
     }
 
     @Test(expected = AuthFailureError.class)
-    public void resultContainsIntent() throws Exception {
+    public void resultContainsIntent() throws Exception
+    {
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
@@ -72,7 +80,8 @@ public class AndroidAuthenticatorTest {
     }
 
     @Test(expected = AuthFailureError.class)
-    public void missingAuthToken() throws Exception {
+    public void missingAuthToken() throws Exception
+    {
         Bundle bundle = new Bundle();
         when(mAccountManager.getAuthToken(mAccount, "cooltype", false, null, null))
                 .thenReturn(mFuture);
@@ -83,13 +92,15 @@ public class AndroidAuthenticatorTest {
     }
 
     @Test
-    public void invalidateAuthToken() throws Exception {
+    public void invalidateAuthToken() throws Exception
+    {
         mAuthenticator.invalidateAuthToken("monkey");
         verify(mAccountManager).invalidateAuthToken("cooltype", "monkey");
     }
 
     @Test
-    public void goodToken() throws Exception {
+    public void goodToken() throws Exception
+    {
         Bundle bundle = new Bundle();
         bundle.putString(AccountManager.KEY_AUTHTOKEN, "monkey");
         when(mAccountManager.getAuthToken(mAccount, "cooltype", false, null, null))
@@ -101,7 +112,8 @@ public class AndroidAuthenticatorTest {
     }
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         Context context = mock(Context.class);
         new AndroidAuthenticator(context, mAccount, "cooltype");

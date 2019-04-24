@@ -1,24 +1,27 @@
 package com.android.volley;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
-public class NetworkResponseTest {
+public class NetworkResponseTest
+{
 
     @SuppressWarnings("deprecation")
     @Test
-    public void mapToList() {
+    public void mapToList()
+    {
         Map<String, String> headers = new HashMap<>();
         headers.put("key1", "value1");
         headers.put("key2", "value2");
@@ -33,7 +36,8 @@ public class NetworkResponseTest {
     }
 
     @Test
-    public void listToMap() {
+    public void listToMap()
+    {
         List<Header> headers = new ArrayList<>();
         headers.add(new Header("key1", "value1"));
         // Later values should be preferred.
@@ -51,7 +55,8 @@ public class NetworkResponseTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void nullValuesDontCrash() {
+    public void nullValuesDontCrash()
+    {
         new NetworkResponse(null);
         new NetworkResponse(null, null);
         new NetworkResponse(200, null, null, false);

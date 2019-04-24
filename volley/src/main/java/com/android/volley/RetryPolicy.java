@@ -22,13 +22,13 @@ package com.android.volley;
  * <p>A retry policy can control two parameters:
  *
  * <ul>
- *   <li>The number of tries. This can be a simple counter or more complex logic based on the type
- *       of error passed to {@link #retry(VolleyError)}, although {@link #getCurrentRetryCount()}
- *       should always return the current retry count for logging purposes.
- *   <li>The request timeout for each try, via {@link #getCurrentTimeout()}. In the common case that
- *       a request times out before the response has been received from the server, retrying again
- *       with a longer timeout can increase the likelihood of success (at the expense of causing the
- *       user to wait longer, especially if the request still fails).
+ * <li>The number of tries. This can be a simple counter or more complex logic based on the type
+ * of error passed to {@link #retry(VolleyError)}, although {@link #getCurrentRetryCount()}
+ * should always return the current retry count for logging purposes.
+ * <li>The request timeout for each try, via {@link #getCurrentTimeout()}. In the common case that
+ * a request times out before the response has been received from the server, retrying again
+ * with a longer timeout can increase the likelihood of success (at the expense of causing the
+ * user to wait longer, especially if the request still fails).
  * </ul>
  *
  * <p>Note that currently, retries triggered by a retry policy are attempted immediately in sequence
@@ -37,12 +37,17 @@ package com.android.volley;
  *
  * <p>By default, Volley uses {@link DefaultRetryPolicy}.
  */
-public interface RetryPolicy {
+public interface RetryPolicy
+{
 
-    /** Returns the current timeout (used for logging). */
+    /**
+     * Returns the current timeout (used for logging).
+     */
     int getCurrentTimeout();
 
-    /** Returns the current retry count (used for logging). */
+    /**
+     * Returns the current retry count (used for logging).
+     */
     int getCurrentRetryCount();
 
     /**
@@ -50,7 +55,7 @@ public interface RetryPolicy {
      *
      * @param error The error code of the last attempt.
      * @throws VolleyError In the event that the retry could not be performed (for example if we ran
-     *     out of attempts), the passed in error is thrown.
+     *                     out of attempts), the passed in error is thrown.
      */
     void retry(VolleyError error) throws VolleyError;
 }

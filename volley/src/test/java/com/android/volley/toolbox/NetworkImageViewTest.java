@@ -16,34 +16,38 @@
 
 package com.android.volley.toolbox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView.ScaleType;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(RobolectricTestRunner.class)
-public class NetworkImageViewTest {
+public class NetworkImageViewTest
+{
     private NetworkImageView mNIV;
     private MockImageLoader mMockImageLoader;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         mMockImageLoader = new MockImageLoader();
         mNIV = new NetworkImageView(RuntimeEnvironment.application);
     }
 
     @Test
-    public void setImageUrl_requestsImage() {
+    public void setImageUrl_requestsImage()
+    {
         mNIV.setLayoutParams(
                 new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         mNIV.setImageUrl("http://foo", mMockImageLoader);
@@ -57,8 +61,10 @@ public class NetworkImageViewTest {
     // // instrumentation test. Write this test once it's figured out.
     // }
 
-    private static class MockImageLoader extends ImageLoader {
-        public MockImageLoader() {
+    private static class MockImageLoader extends ImageLoader
+    {
+        public MockImageLoader()
+        {
             super(null, null);
         }
 
@@ -72,7 +78,8 @@ public class NetworkImageViewTest {
                 ImageListener imageListener,
                 int maxWidth,
                 int maxHeight,
-                ScaleType scaleType) {
+                ScaleType scaleType)
+        {
             lastRequestUrl = requestUrl;
             lastMaxWidth = maxWidth;
             lastMaxHeight = maxHeight;
@@ -81,7 +88,8 @@ public class NetworkImageViewTest {
     }
 
     @Test
-    public void publicMethods() throws Exception {
+    public void publicMethods() throws Exception
+    {
         // Catch-all test to find API-breaking changes.
         assertNotNull(NetworkImageView.class.getConstructor(Context.class));
         assertNotNull(NetworkImageView.class.getConstructor(Context.class, AttributeSet.class));

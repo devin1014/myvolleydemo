@@ -16,8 +16,11 @@
 
 package com.android.volley;
 
-/** An interface for performing requests. */
-public interface Network {
+/**
+ * An interface for performing requests.
+ */
+public interface Network
+{
     /**
      * Performs the specified request.
      *

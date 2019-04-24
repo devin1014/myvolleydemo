@@ -16,15 +16,17 @@
 
 package com.android.volley.toolbox;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-
-public class ByteArrayPoolTest {
+public class ByteArrayPoolTest
+{
     @Test
-    public void reusesBuffer() {
+    public void reusesBuffer()
+    {
         ByteArrayPool pool = new ByteArrayPool(32);
 
         byte[] buf1 = pool.getBuf(16);
@@ -41,7 +43,8 @@ public class ByteArrayPoolTest {
     }
 
     @Test
-    public void obeysSizeLimit() {
+    public void obeysSizeLimit()
+    {
         ByteArrayPool pool = new ByteArrayPool(32);
 
         byte[] buf1 = pool.getBuf(16);
@@ -63,7 +66,8 @@ public class ByteArrayPoolTest {
     }
 
     @Test
-    public void returnsBufferWithRightSize() {
+    public void returnsBufferWithRightSize()
+    {
         ByteArrayPool pool = new ByteArrayPool(32);
 
         byte[] buf1 = pool.getBuf(16);
