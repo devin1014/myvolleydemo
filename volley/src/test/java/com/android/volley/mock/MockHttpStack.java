@@ -18,14 +18,14 @@ package com.android.volley.mock;
 
 import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.toolbox.BaseHttpStack;
+import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HttpResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockHttpStack extends BaseHttpStack
+public class MockHttpStack implements HttpStack
 {
 
     private HttpResponse mResponseToReturn;

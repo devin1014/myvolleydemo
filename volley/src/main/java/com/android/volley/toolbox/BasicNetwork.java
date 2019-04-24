@@ -49,7 +49,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * A network performing Volley requests over an {@link BaseHttpStack}.
+ * A network performing Volley requests over an {@link HttpStack}.
  */
 public class BasicNetwork implements Network
 {
@@ -59,14 +59,14 @@ public class BasicNetwork implements Network
 
     private static final int DEFAULT_POOL_SIZE = 4096;
 
-    private final BaseHttpStack mBaseHttpStack;
+    private final HttpStack mHttpStack;
 
     protected final ByteArrayPool mPool;
 
     /**
      * @param httpStack HTTP stack to be used
      */
-    public BasicNetwork(BaseHttpStack httpStack)
+    public BasicNetwork(HttpStack httpStack)
     {
         // If a pool isn't passed in, then build a small default pool that will give us a lot of
         // benefit and not use too much memory.
@@ -77,9 +77,9 @@ public class BasicNetwork implements Network
      * @param httpStack HTTP stack to be used
      * @param pool      a buffer pool that improves GC performance in copy operations
      */
-    public BasicNetwork(BaseHttpStack httpStack, ByteArrayPool pool)
+    public BasicNetwork(HttpStack httpStack, ByteArrayPool pool)
     {
-        mBaseHttpStack = httpStack;
+        mHttpStack = httpStack;
         mPool = pool;
     }
 
@@ -97,7 +97,7 @@ public class BasicNetwork implements Network
                 // Gather headers.
                 Map<String, String> additionalRequestHeaders =
                         getCacheHeaders(request.getCacheEntry());
-                httpResponse = mBaseHttpStack.executeRequest(request, additionalRequestHeaders);
+                httpResponse = mHttpStack.executeRequest(request, additionalRequestHeaders);
                 int statusCode = httpResponse.getStatusCode();
 
                 responseHeaders = httpResponse.getHeaders();

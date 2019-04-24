@@ -25,10 +25,8 @@ import java.util.Map;
 /**
  * An HTTP stack abstraction.
  */
-@SuppressWarnings("deprecation") // for HttpStack
-public abstract class BaseHttpStack
+public interface HttpStack
 {
-
     /**
      * Performs an HTTP request with the given parameters.
      *
@@ -43,7 +41,7 @@ public abstract class BaseHttpStack
      * @throws IOException            if another I/O error occurs during the request
      * @throws AuthFailureError       if an authentication failure occurs during the request
      */
-    public abstract HttpResponse executeRequest(
+    HttpResponse executeRequest(
             Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError;
 }

@@ -18,10 +18,10 @@ package com.android.volley.toolbox;
 
 import android.support.annotation.VisibleForTesting;
 
-import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Header;
 import com.android.volley.Request;
 import com.android.volley.Request.Method;
+import com.android.volley.exception.AuthFailureError;
 
 import java.io.DataOutputStream;
 import java.io.FilterInputStream;
@@ -38,9 +38,9 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
- * A {@link BaseHttpStack} based on {@link HttpURLConnection}.
+ * A {@link HttpStack} based on {@link HttpURLConnection}.
  */
-public class HurlStack extends BaseHttpStack
+public class HttpUrlConnectionStack implements HttpStack
 {
 
     private static final int HTTP_CONTINUE = 100;
@@ -60,7 +60,7 @@ public class HurlStack extends BaseHttpStack
     private final UrlRewriter mUrlRewriter;
     private final SSLSocketFactory mSslSocketFactory;
 
-    public HurlStack()
+    public HttpUrlConnectionStack()
     {
         this(/* urlRewriter = */ null);
     }
@@ -68,7 +68,7 @@ public class HurlStack extends BaseHttpStack
     /**
      * @param urlRewriter Rewriter to use for request URLs
      */
-    public HurlStack(UrlRewriter urlRewriter)
+    public HttpUrlConnectionStack(UrlRewriter urlRewriter)
     {
         this(urlRewriter, /* sslSocketFactory = */ null);
     }
@@ -77,7 +77,7 @@ public class HurlStack extends BaseHttpStack
      * @param urlRewriter      Rewriter to use for request URLs
      * @param sslSocketFactory SSL factory to use for HTTPS connections
      */
-    public HurlStack(UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory)
+    public HttpUrlConnectionStack(UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory)
     {
         mUrlRewriter = urlRewriter;
         mSslSocketFactory = sslSocketFactory;
