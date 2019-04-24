@@ -16,6 +16,9 @@
 
 package com.android.volley.toolbox;
 
+import android.support.annotation.GuardedBy;
+import android.support.annotation.Nullable;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -25,8 +28,6 @@ import com.android.volley.VolleyLog;
 
 import java.io.UnsupportedEncodingException;
 
-import androidx.annotation.GuardedBy;
-import androidx.annotation.Nullable;
 
 /**
  * A request for retrieving a T type response body at a given URL that also optionally sends along a

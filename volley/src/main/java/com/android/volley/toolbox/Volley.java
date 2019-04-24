@@ -17,10 +17,6 @@
 package com.android.volley.toolbox;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.http.AndroidHttpClient;
-import android.os.Build;
 
 import com.android.volley.Network;
 import com.android.volley.RequestQueue;
@@ -47,32 +43,7 @@ public class Volley
         BasicNetwork network;
         if (stack == null)
         {
-            if (Build.VERSION.SDK_INT >= 9)
-            {
-                network = new BasicNetwork(new HurlStack());
-            }
-            else
-            {
-                // Prior to Gingerbread, HttpUrlConnection was unreliable.
-                // See: http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-                // At some point in the future we'll move our minSdkVersion past Froyo and can
-                // delete this fallback (along with all Apache HTTP code).
-                String userAgent = "volley/0";
-                try
-                {
-                    String packageName = context.getPackageName();
-                    PackageInfo info =
-                            context.getPackageManager().getPackageInfo(packageName, /* flags= */ 0);
-                    userAgent = packageName + "/" + info.versionCode;
-                }
-                catch (NameNotFoundException e)
-                {
-                }
-
-                network =
-                        new BasicNetwork(
-                                new HttpClientStack(AndroidHttpClient.newInstance(userAgent)));
-            }
+            network = new BasicNetwork(new HurlStack());
         }
         else
         {

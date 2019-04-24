@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.MainThread;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
@@ -31,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.annotation.MainThread;
 
 /**
  * Helper that handles loading and caching images from remote URLs.

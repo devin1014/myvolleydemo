@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.support.annotation.Nullable;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
@@ -27,7 +29,6 @@ import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
 
-import androidx.annotation.Nullable;
 
 /**
  * A request for retrieving a {@link JSONArray} response body at a given URL.

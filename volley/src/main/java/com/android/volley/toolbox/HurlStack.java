@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Header;
 import com.android.volley.Request;
@@ -34,8 +36,6 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
-
-import androidx.annotation.VisibleForTesting;
 
 /**
  * A {@link BaseHttpStack} based on {@link HttpURLConnection}.

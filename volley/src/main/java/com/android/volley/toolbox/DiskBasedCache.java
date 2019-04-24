@@ -17,6 +17,7 @@
 package com.android.volley.toolbox;
 
 import android.os.SystemClock;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.android.volley.Cache;
@@ -41,8 +42,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.VisibleForTesting;
 
 /**
  * Cache implementation that caches files directly onto the hard disk in the specified directory.

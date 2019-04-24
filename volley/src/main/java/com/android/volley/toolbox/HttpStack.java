@@ -19,8 +19,6 @@ package com.android.volley.toolbox;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 
-import org.apache.http.HttpResponse;
-
 import java.io.IOException;
 import java.util.Map;
 

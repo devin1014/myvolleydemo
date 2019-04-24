@@ -18,6 +18,7 @@ package com.android.volley;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import androidx.annotation.IntDef;
 
 /**
  * A request dispatch queue with a thread pool of dispatchers.

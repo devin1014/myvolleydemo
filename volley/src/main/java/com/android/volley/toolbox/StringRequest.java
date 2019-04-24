@@ -16,6 +16,9 @@
 
 package com.android.volley.toolbox;
 
+import android.support.annotation.GuardedBy;
+import android.support.annotation.Nullable;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -24,8 +27,6 @@ import com.android.volley.Response.Listener;
 
 import java.io.UnsupportedEncodingException;
 
-import androidx.annotation.GuardedBy;
-import androidx.annotation.Nullable;
 
 /**
  * A canned request for retrieving the response body at a given URL as a String.

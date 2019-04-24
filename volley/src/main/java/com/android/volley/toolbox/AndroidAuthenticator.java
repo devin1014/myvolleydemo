@@ -23,10 +23,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 
 import com.android.volley.AuthFailureError;
-
-import androidx.annotation.VisibleForTesting;
 
 /**
  * An Authenticator that uses {@link AccountManager} to get auth tokens of a specified type for a
