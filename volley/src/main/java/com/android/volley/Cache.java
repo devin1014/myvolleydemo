@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import com.android.volley.network.Header;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +134,43 @@ public interface Cache
         public boolean refreshNeeded()
         {
             return this.softTtl < System.currentTimeMillis();
+        }
+    }
+
+    /**
+     * A cache that doesn't.
+     */
+    class NoCache implements Cache
+    {
+        @Override
+        public void clear()
+        {
+        }
+
+        @Override
+        public Entry get(String key)
+        {
+            return null;
+        }
+
+        @Override
+        public void put(String key, Entry entry)
+        {
+        }
+
+        @Override
+        public void invalidate(String key, boolean fullExpire)
+        {
+        }
+
+        @Override
+        public void remove(String key)
+        {
+        }
+
+        @Override
+        public void initialize()
+        {
         }
     }
 }

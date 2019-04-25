@@ -24,6 +24,8 @@ import android.os.SystemClock;
 import android.support.annotation.VisibleForTesting;
 
 import com.android.volley.exception.VolleyError;
+import com.android.volley.network.Network;
+import com.android.volley.network.NetworkResponse;
 
 import java.util.concurrent.BlockingQueue;
 

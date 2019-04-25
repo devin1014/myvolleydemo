@@ -17,8 +17,9 @@
 package com.android.volley.toolbox;
 
 import com.android.volley.Cache;
-import com.android.volley.Header;
-import com.android.volley.NetworkResponse;
+import com.android.volley.network.Header;
+import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.NetworkResponse;
 
 import org.junit.Before;
 import org.junit.Test;

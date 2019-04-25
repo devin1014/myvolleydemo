@@ -16,7 +16,7 @@
 
 package com.android.volley.toolbox;
 
-import com.android.volley.NetworkResponse;
+import com.android.volley.network.NetworkResponse;
 import com.android.volley.Response;
 
 import org.json.JSONArray;

@@ -20,6 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 
+import com.android.volley.network.Network;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -173,7 +175,7 @@ public class RequestQueue
                         Network network,
                         int threadPoolSize)
     {
-        this(cache, network, threadPoolSize, new ExecutorDelivery(new Handler(Looper.getMainLooper())));
+        this(cache, network, threadPoolSize, new DefaultResponseDelivery(new Handler(Looper.getMainLooper())));
     }
 
     /**

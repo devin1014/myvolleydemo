@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
-import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Cache.Entry;
-import com.android.volley.Header;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
+import com.android.volley.exception.AuthFailureError;
 import com.android.volley.exception.ServerError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
 import com.android.volley.mock.MockHttpStack;
+import com.android.volley.network.BasicNetwork;
+import com.android.volley.network.Header;
+import com.android.volley.network.HttpResponse;
+import com.android.volley.network.NetworkResponse;
+import com.android.volley.toolbox.ByteArrayPool;
 
 import org.junit.Before;
 import org.junit.Test;

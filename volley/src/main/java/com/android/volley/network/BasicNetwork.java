@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
 import android.os.SystemClock;
 
 import com.android.volley.Cache;
 import com.android.volley.Cache.Entry;
-import com.android.volley.Header;
-import com.android.volley.Network;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyLog;
@@ -33,6 +30,8 @@ import com.android.volley.exception.NoConnectionError;
 import com.android.volley.exception.ServerError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
+import com.android.volley.toolbox.ByteArrayPool;
+import com.android.volley.toolbox.PoolingByteArrayOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

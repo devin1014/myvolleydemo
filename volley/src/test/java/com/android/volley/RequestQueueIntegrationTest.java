@@ -16,13 +16,15 @@
 
 package com.android.volley;
 
+import com.android.volley.Cache.NoCache;
 import com.android.volley.Request.Priority;
 import com.android.volley.RequestQueue.RequestEvent;
 import com.android.volley.RequestQueue.RequestEventListener;
 import com.android.volley.exception.VolleyError;
 import com.android.volley.mock.MockRequest;
 import com.android.volley.mock.ShadowSystemClock;
-import com.android.volley.toolbox.NoCache;
+import com.android.volley.network.Network;
+import com.android.volley.network.NetworkResponse;
 import com.android.volley.utils.ImmediateResponseDelivery;
 
 import org.junit.Before;

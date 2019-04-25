@@ -21,7 +21,7 @@ import android.graphics.Bitmap.Config;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
-import com.android.volley.NetworkResponse;
+import com.android.volley.network.NetworkResponse;
 import com.android.volley.Response;
 
 import org.junit.Test;

@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class ResponseDeliveryTest
 {
 
-    private ExecutorDelivery mDelivery;
+    private DefaultResponseDelivery mDelivery;
     private MockRequest mRequest;
     private Response<byte[]> mSuccessResponse;
 

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
 import android.support.annotation.VisibleForTesting;
 
-import com.android.volley.Header;
 import com.android.volley.Request;
 import com.android.volley.Request.Method;
 import com.android.volley.exception.AuthFailureError;

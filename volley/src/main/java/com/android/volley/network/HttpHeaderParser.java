@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
 import com.android.volley.Cache;
-import com.android.volley.Header;
-import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyLog;
 
 import java.text.ParseException;
@@ -231,7 +229,7 @@ public class HttpHeaderParser
     // TODO: Consider obfuscating official releases so we can share utility methods between Volley
     // and Toolbox without making them public APIs.
 
-    static Map<String, String> toHeaderMap(List<Header> allHeaders)
+    public static Map<String, String> toHeaderMap(List<Header> allHeaders)
     {
         Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         // Later elements in the list take precedence.
@@ -242,7 +240,7 @@ public class HttpHeaderParser
         return headers;
     }
 
-    static List<Header> toAllHeaderList(Map<String, String> headers)
+    public static List<Header> toAllHeaderList(Map<String, String> headers)
     {
         List<Header> allHeaders = new ArrayList<>(headers.size());
         for (Map.Entry<String, String> header : headers.entrySet())

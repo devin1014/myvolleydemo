@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley;
 
 import android.os.SystemClock;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import com.android.volley.Cache;
-import com.android.volley.Header;
-import com.android.volley.VolleyLog;
+import com.android.volley.network.Header;
+import com.android.volley.network.HttpHeaderParser;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -51,7 +50,6 @@ import java.util.Map;
  */
 public class DiskBasedCache implements Cache
 {
-
     /**
      * Map of the Key, CacheHeader pairs
      */

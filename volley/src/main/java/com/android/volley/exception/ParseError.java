@@ -16,8 +16,7 @@
 
 package com.android.volley.exception;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.exception.VolleyError;
+import com.android.volley.network.NetworkResponse;
 
 /**
  * Indicates that the server's response could not be parsed.

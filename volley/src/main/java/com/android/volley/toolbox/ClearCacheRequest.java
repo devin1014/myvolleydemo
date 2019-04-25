@@ -20,7 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.android.volley.Cache;
-import com.android.volley.NetworkResponse;
+import com.android.volley.network.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 

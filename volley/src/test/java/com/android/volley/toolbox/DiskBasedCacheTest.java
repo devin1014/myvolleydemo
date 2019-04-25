@@ -17,9 +17,10 @@
 package com.android.volley.toolbox;
 
 import com.android.volley.Cache;
-import com.android.volley.Header;
-import com.android.volley.toolbox.DiskBasedCache.CacheHeader;
-import com.android.volley.toolbox.DiskBasedCache.CountingInputStream;
+import com.android.volley.DiskBasedCache;
+import com.android.volley.network.Header;
+import com.android.volley.DiskBasedCache.CacheHeader;
+import com.android.volley.DiskBasedCache.CountingInputStream;
 
 import org.junit.After;
 import org.junit.Before;

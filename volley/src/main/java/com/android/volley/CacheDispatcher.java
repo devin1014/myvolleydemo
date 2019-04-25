@@ -19,6 +19,8 @@ package com.android.volley;
 import android.os.Process;
 import android.support.annotation.VisibleForTesting;
 
+import com.android.volley.network.NetworkResponse;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

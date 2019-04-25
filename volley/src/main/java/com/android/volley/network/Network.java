@@ -14,43 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
-import com.android.volley.Cache;
+import com.android.volley.Request;
+import com.android.volley.exception.VolleyError;
 
 /**
- * A cache that doesn't.
+ * An interface for performing requests.
  */
-public class NoCache implements Cache
+public interface Network
 {
-    @Override
-    public void clear()
-    {
-    }
-
-    @Override
-    public Entry get(String key)
-    {
-        return null;
-    }
-
-    @Override
-    public void put(String key, Entry entry)
-    {
-    }
-
-    @Override
-    public void invalidate(String key, boolean fullExpire)
-    {
-    }
-
-    @Override
-    public void remove(String key)
-    {
-    }
-
-    @Override
-    public void initialize()
-    {
-    }
+    /**
+     * Performs the specified request.
+     *
+     * @param request Request to process
+     * @return A {@link NetworkResponse} with data and caching metadata; will never be null
+     * @throws VolleyError on errors
+     */
+    NetworkResponse performRequest(Request<?> request) throws VolleyError;
 }

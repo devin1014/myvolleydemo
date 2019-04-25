@@ -16,8 +16,9 @@
 
 package com.android.volley;
 
+import com.android.volley.Cache.NoCache;
 import com.android.volley.mock.ShadowSystemClock;
-import com.android.volley.toolbox.NoCache;
+import com.android.volley.network.Network;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.utils.ImmediateResponseDelivery;
 

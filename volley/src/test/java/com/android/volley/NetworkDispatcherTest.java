@@ -16,9 +16,11 @@
 
 package com.android.volley;
 
+import com.android.volley.Cache.NoCache;
 import com.android.volley.exception.ServerError;
 import com.android.volley.exception.VolleyError;
-import com.android.volley.toolbox.NoCache;
+import com.android.volley.network.Network;
+import com.android.volley.network.NetworkResponse;
 import com.android.volley.toolbox.StringRequest;
 
 import org.junit.Before;

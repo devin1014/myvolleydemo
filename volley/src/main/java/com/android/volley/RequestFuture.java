@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley;
 
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.exception.VolleyError;
 
 import java.util.concurrent.ExecutionException;

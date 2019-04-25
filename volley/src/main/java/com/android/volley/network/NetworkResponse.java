@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.volley;
+package com.android.volley.network;
+
+import com.android.volley.Request;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;

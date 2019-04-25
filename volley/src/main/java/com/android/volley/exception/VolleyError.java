@@ -16,7 +16,7 @@
 
 package com.android.volley.exception;
 
-import com.android.volley.NetworkResponse;
+import com.android.volley.network.NetworkResponse;
 
 /**
  * Exception style class encapsulating Volley errors

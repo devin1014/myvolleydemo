@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
-import com.android.volley.Header;
+import com.android.volley.network.Header;
 
 import java.io.InputStream;
 import java.util.Collections;

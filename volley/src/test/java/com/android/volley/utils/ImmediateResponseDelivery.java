@@ -16,7 +16,9 @@
 
 package com.android.volley.utils;
 
-import com.android.volley.ExecutorDelivery;
+import android.support.annotation.NonNull;
+
+import com.android.volley.DefaultResponseDelivery;
 
 import java.util.concurrent.Executor;
 
@@ -24,19 +26,17 @@ import java.util.concurrent.Executor;
  * A ResponseDelivery for testing that immediately delivers responses instead of posting back to the
  * main thread.
  */
-public class ImmediateResponseDelivery extends ExecutorDelivery
+public class ImmediateResponseDelivery extends DefaultResponseDelivery
 {
-
     public ImmediateResponseDelivery()
     {
-        super(
-                new Executor()
-                {
-                    @Override
-                    public void execute(Runnable command)
-                    {
-                        command.run();
-                    }
-                });
+        super(new Executor()
+        {
+            @Override
+            public void execute(@NonNull Runnable command)
+            {
+                command.run();
+            }
+        });
     }
 }

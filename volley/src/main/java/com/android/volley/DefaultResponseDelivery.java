@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 /**
  * Delivers responses and errors.
  */
-public class ExecutorDelivery implements ResponseDelivery
+public class DefaultResponseDelivery implements ResponseDelivery
 {
     /**
      * Used for posting responses, typically to the main thread.
@@ -38,7 +38,7 @@ public class ExecutorDelivery implements ResponseDelivery
      *
      * @param handler {@link Handler} to post responses on
      */
-    public ExecutorDelivery(final Handler handler)
+    public DefaultResponseDelivery(final Handler handler)
     {
         // Make an Executor that just wraps the handler.
         mResponsePoster = new Executor()
@@ -56,7 +56,7 @@ public class ExecutorDelivery implements ResponseDelivery
      *
      * @param executor For running delivery tasks
      */
-    public ExecutorDelivery(Executor executor)
+    public DefaultResponseDelivery(Executor executor)
     {
         mResponsePoster = executor;
     }

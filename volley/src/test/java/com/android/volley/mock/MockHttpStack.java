@@ -18,8 +18,8 @@ package com.android.volley.mock;
 
 import com.android.volley.exception.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.toolbox.HttpStack;
-import com.android.volley.toolbox.HttpResponse;
+import com.android.volley.network.HttpStack;
+import com.android.volley.network.HttpResponse;
 
 import java.io.IOException;
 import java.util.HashMap;

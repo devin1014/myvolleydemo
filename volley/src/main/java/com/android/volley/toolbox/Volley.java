@@ -18,8 +18,12 @@ package com.android.volley.toolbox;
 
 import android.content.Context;
 
-import com.android.volley.Network;
+import com.android.volley.DiskBasedCache;
 import com.android.volley.RequestQueue;
+import com.android.volley.network.BasicNetwork;
+import com.android.volley.network.HttpStack;
+import com.android.volley.network.HttpUrlConnectionStack;
+import com.android.volley.network.Network;
 
 import java.io.File;
 
@@ -28,7 +32,7 @@ public class Volley
     /**
      * Default on-disk cache directory.
      */
-    private static final String DEFAULT_CACHE_DIR = "volley2";
+    private static final String DEFAULT_CACHE_DIR = "volley";
 
     /**
      * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.

@@ -17,6 +17,7 @@
 package com.android.volley.toolbox;
 
 import com.android.volley.Request;
+import com.android.volley.RequestFuture;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

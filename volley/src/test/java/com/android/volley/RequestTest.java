@@ -16,9 +16,11 @@
 
 package com.android.volley;
 
+import com.android.volley.Cache.NoCache;
 import com.android.volley.Request.Method;
 import com.android.volley.Request.Priority;
-import com.android.volley.toolbox.NoCache;
+import com.android.volley.network.Network;
+import com.android.volley.network.NetworkResponse;
 
 import org.junit.Before;
 import org.junit.Test;

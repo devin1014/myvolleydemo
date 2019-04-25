@@ -19,7 +19,8 @@ package com.android.volley.toolbox;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.Nullable;
 
-import com.android.volley.NetworkResponse;
+import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
