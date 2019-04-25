@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.imageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -23,7 +23,6 @@ import android.widget.ImageView.ScaleType;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
-import com.android.volley.imageloader.ImageRequest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

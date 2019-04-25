@@ -17,7 +17,8 @@
 package com.android.volley;
 
 import com.android.volley.Request.Priority;
-import com.android.volley.RequestQueue.RequestFinishedListener;
+import com.android.volley.RequestQueue.RequestEvent;
+import com.android.volley.RequestQueue.RequestEventListener;
 import com.android.volley.exception.VolleyError;
 import com.android.volley.mock.MockRequest;
 import com.android.volley.mock.ShadowSystemClock;
@@ -56,9 +57,9 @@ public class RequestQueueIntegrationTest
     @Mock
     private Network mMockNetwork;
     @Mock
-    private RequestFinishedListener<byte[]> mMockListener;
+    private RequestEventListener mMockListener;
     @Mock
-    private RequestFinishedListener<byte[]> mMockListener2;
+    private RequestEventListener mMockListener2;
 
     @Before
     public void setUp() throws Exception
@@ -97,16 +98,16 @@ public class RequestQueueIntegrationTest
         when(mMockNetwork.performRequest(lowerPriorityReq)).thenReturn(mock(NetworkResponse.class));
 
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 1, mDelivery);
-        queue.addRequestFinishedListener(mMockListener);
+        queue.addRequestEventListener(mMockListener);
         queue.add(lowerPriorityReq);
         queue.add(higherPriorityReq);
         queue.start();
 
         InOrder inOrder = inOrder(mMockListener);
         // verify higherPriorityReq goes through first
-        inOrder.verify(mMockListener, timeout(10000)).onRequestFinished(higherPriorityReq);
+        inOrder.verify(mMockListener, timeout(10000)).onRequestEvent(higherPriorityReq, RequestEvent.REQUEST_FINISHED);
         // verify lowerPriorityReq goes last
-        inOrder.verify(mMockListener, timeout(10000)).onRequestFinished(lowerPriorityReq);
+        inOrder.verify(mMockListener, timeout(10000)).onRequestEvent(lowerPriorityReq, RequestEvent.REQUEST_FINISHED);
 
         queue.stop();
     }
@@ -137,16 +138,16 @@ public class RequestQueueIntegrationTest
         when(mMockNetwork.performRequest(req2)).thenReturn(mock(NetworkResponse.class));
 
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 3, mDelivery);
-        queue.addRequestFinishedListener(mMockListener);
+        queue.addRequestEventListener(mMockListener);
         queue.add(req1);
         queue.add(req2);
         queue.start();
 
         InOrder inOrder = inOrder(mMockListener);
         // verify req1 goes through first
-        inOrder.verify(mMockListener, timeout(10000)).onRequestFinished(req1);
+        inOrder.verify(mMockListener, timeout(10000)).onRequestEvent(req1, RequestEvent.REQUEST_FINISHED);
         // verify req2 goes last
-        inOrder.verify(mMockListener, timeout(10000)).onRequestFinished(req2);
+        inOrder.verify(mMockListener, timeout(10000)).onRequestEvent(req2, RequestEvent.REQUEST_FINISHED);
 
         queue.stop();
     }
@@ -173,12 +174,12 @@ public class RequestQueueIntegrationTest
 
         when(mMockNetwork.performRequest(request)).thenAnswer(delayAnswer);
 
-        queue.addRequestFinishedListener(mMockListener);
+        queue.addRequestEventListener(mMockListener);
         queue.start();
         queue.add(request);
 
         request.cancel();
-        verify(mMockListener, timeout(10000)).onRequestFinished(request);
+        verify(mMockListener, timeout(10000)).onRequestEvent(request, RequestEvent.REQUEST_FINISHED);
         queue.stop();
     }
 
@@ -191,13 +192,13 @@ public class RequestQueueIntegrationTest
         MockRequest request = new MockRequest();
         RequestQueue queue = new RequestQueue(new NoCache(), mMockNetwork, 1, mDelivery);
 
-        queue.addRequestFinishedListener(mMockListener);
-        queue.addRequestFinishedListener(mMockListener2);
+        queue.addRequestEventListener(mMockListener);
+        queue.addRequestEventListener(mMockListener2);
         queue.start();
         queue.add(request);
 
-        verify(mMockListener, timeout(10000)).onRequestFinished(request);
-        verify(mMockListener2, timeout(10000)).onRequestFinished(request);
+        verify(mMockListener, timeout(10000)).onRequestEvent(request, RequestEvent.REQUEST_FINISHED);
+        verify(mMockListener2, timeout(10000)).onRequestEvent(request, RequestEvent.REQUEST_FINISHED);
 
         queue.stop();
     }
@@ -213,11 +214,11 @@ public class RequestQueueIntegrationTest
 
         when(mMockNetwork.performRequest(request)).thenThrow(new VolleyError());
 
-        queue.addRequestFinishedListener(mMockListener);
+        queue.addRequestEventListener(mMockListener);
         queue.start();
         queue.add(request);
 
-        verify(mMockListener, timeout(10000)).onRequestFinished(request);
+        verify(mMockListener, timeout(10000)).onRequestEvent(request, RequestEvent.REQUEST_FINISHED);
         queue.stop();
     }
 }
