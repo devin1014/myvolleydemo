@@ -56,14 +56,14 @@ public class DefaultRetryPolicy implements RetryPolicy
     /**
      * The default backoff multiplier
      */
-    public static final float DEFAULT_BACKOFF_MULT = 1f;
+    public static final float DEFAULT_BACKOFF_MULTIPLIER = 1f;
 
     /**
      * Constructs a new retry policy using the default timeouts.
      */
     public DefaultRetryPolicy()
     {
-        this(DEFAULT_TIMEOUT_MS, DEFAULT_MAX_RETRIES, DEFAULT_BACKOFF_MULT);
+        this(DEFAULT_TIMEOUT_MS, DEFAULT_MAX_RETRIES, DEFAULT_BACKOFF_MULTIPLIER);
     }
 
     /**
@@ -73,7 +73,9 @@ public class DefaultRetryPolicy implements RetryPolicy
      * @param maxNumRetries     The maximum number of retries.
      * @param backoffMultiplier Backoff multiplier for the policy.
      */
-    public DefaultRetryPolicy(int initialTimeoutMs, int maxNumRetries, float backoffMultiplier)
+    public DefaultRetryPolicy(int initialTimeoutMs,
+                              int maxNumRetries,
+                              float backoffMultiplier)
     {
         mCurrentTimeoutMs = initialTimeoutMs;
         mMaxNumRetries = maxNumRetries;

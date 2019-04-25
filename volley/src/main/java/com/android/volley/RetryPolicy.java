@@ -41,7 +41,6 @@ import com.android.volley.exception.VolleyError;
  */
 public interface RetryPolicy
 {
-
     /**
      * Returns the current timeout (used for logging).
      */

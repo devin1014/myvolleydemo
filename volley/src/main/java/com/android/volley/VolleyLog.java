@@ -135,7 +135,7 @@ public class VolleyLog
             public final long thread;
             public final long time;
 
-            public Marker(String name, long thread, long time)
+            Marker(String name, long thread, long time)
             {
                 this.name = name;
                 this.thread = thread;

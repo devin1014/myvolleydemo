@@ -36,7 +36,6 @@ import java.util.concurrent.BlockingQueue;
  */
 public class CacheDispatcher extends Thread
 {
-
     private static final boolean DEBUG = VolleyLog.DEBUG;
 
     /**
@@ -127,9 +126,8 @@ public class CacheDispatcher extends Thread
                     Thread.currentThread().interrupt();
                     return;
                 }
-                VolleyLog.e(
-                        "Ignoring spurious interrupt of CacheDispatcher thread; "
-                                + "use quit() to terminate it");
+                VolleyLog.e("Ignoring spurious interrupt of CacheDispatcher thread; "
+                        + "use quit() to terminate it");
             }
         }
     }
@@ -188,9 +186,7 @@ public class CacheDispatcher extends Thread
 
             // We have a cache hit; parse its data for delivery back to the request.
             request.addMarker("cache-hit");
-            Response<?> response =
-                    request.parseNetworkResponse(
-                            new NetworkResponse(entry.data, entry.responseHeaders));
+            Response<?> response = request.parseNetworkResponse(new NetworkResponse(entry.data, entry.responseHeaders));
             request.addMarker("cache-hit-parsed");
 
             if (!entry.refreshNeeded())
@@ -212,25 +208,22 @@ public class CacheDispatcher extends Thread
                 {
                     // Post the intermediate response back to the user and have
                     // the delivery then forward the request along to the network.
-                    mDelivery.postResponse(
-                            request,
-                            response,
-                            new Runnable()
+                    mDelivery.postResponse(request, response, new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
                             {
-                                @Override
-                                public void run()
-                                {
-                                    try
-                                    {
-                                        mNetworkQueue.put(request);
-                                    }
-                                    catch (InterruptedException e)
-                                    {
-                                        // Restore the interrupted status
-                                        Thread.currentThread().interrupt();
-                                    }
-                                }
-                            });
+                                mNetworkQueue.put(request);
+                            }
+                            catch (InterruptedException e)
+                            {
+                                // Restore the interrupted status
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                    });
                 }
                 else
                 {
@@ -248,7 +241,6 @@ public class CacheDispatcher extends Thread
 
     private static class WaitingRequestManager implements Request.NetworkRequestCompleteListener
     {
-
         /**
          * Staging area for requests that already have a duplicate request in flight.
          *
@@ -289,9 +281,7 @@ public class CacheDispatcher extends Thread
             {
                 if (VolleyLog.DEBUG)
                 {
-                    VolleyLog.v(
-                            "Releasing %d waiting requests for cacheKey=%s.",
-                            waitingRequests.size(), cacheKey);
+                    VolleyLog.v("Releasing %d waiting requests for cacheKey=%s.", waitingRequests.size(), cacheKey);
                 }
                 // Process all queued up requests.
                 for (Request<?> waiting : waitingRequests)
@@ -313,9 +303,7 @@ public class CacheDispatcher extends Thread
             {
                 if (VolleyLog.DEBUG)
                 {
-                    VolleyLog.v(
-                            "%d waiting requests for cacheKey=%s; resend to network",
-                            waitingRequests.size(), cacheKey);
+                    VolleyLog.v("%d waiting requests for cacheKey=%s; resend to network", waitingRequests.size(), cacheKey);
                 }
                 Request<?> nextInLine = waitingRequests.remove(0);
                 mWaitingRequests.put(cacheKey, waitingRequests);

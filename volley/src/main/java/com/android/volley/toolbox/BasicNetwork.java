@@ -53,7 +53,7 @@ import java.util.TreeSet;
  */
 public class BasicNetwork implements Network
 {
-    protected static final boolean DEBUG = VolleyLog.DEBUG;
+    private static final boolean DEBUG = VolleyLog.DEBUG;
 
     private static final int SLOW_REQUEST_THRESHOLD_MS = 3000;
 
@@ -77,7 +77,8 @@ public class BasicNetwork implements Network
      * @param httpStack HTTP stack to be used
      * @param pool      a buffer pool that improves GC performance in copy operations
      */
-    public BasicNetwork(HttpStack httpStack, ByteArrayPool pool)
+    public BasicNetwork(HttpStack httpStack,
+                        ByteArrayPool pool)
     {
         mHttpStack = httpStack;
         mPool = pool;
@@ -95,22 +96,19 @@ public class BasicNetwork implements Network
             try
             {
                 // Gather headers.
-                Map<String, String> additionalRequestHeaders =
-                        getCacheHeaders(request.getCacheEntry());
+                Map<String, String> additionalRequestHeaders = getCacheHeaders(request.getCacheEntry());
                 httpResponse = mHttpStack.executeRequest(request, additionalRequestHeaders);
                 int statusCode = httpResponse.getStatusCode();
-
                 responseHeaders = httpResponse.getHeaders();
                 // Handle cache validation.
-                if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED)
+                if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) // 304
                 {
                     Entry entry = request.getCacheEntry();
                     if (entry == null)
                     {
-                        return new NetworkResponse(
-                                HttpURLConnection.HTTP_NOT_MODIFIED,
-                                /* data= */ null,
-                                /* notModified= */ true,
+                        return new NetworkResponse(HttpURLConnection.HTTP_NOT_MODIFIED,
+                                null,
+                                true,
                                 SystemClock.elapsedRealtime() - requestStart,
                                 responseHeaders);
                     }
@@ -119,7 +117,7 @@ public class BasicNetwork implements Network
                     return new NetworkResponse(
                             HttpURLConnection.HTTP_NOT_MODIFIED,
                             entry.data,
-                            /* notModified= */ true,
+                            true,
                             SystemClock.elapsedRealtime() - requestStart,
                             combinedHeaders);
                 }
@@ -128,8 +126,7 @@ public class BasicNetwork implements Network
                 InputStream inputStream = httpResponse.getContent();
                 if (inputStream != null)
                 {
-                    responseContents =
-                            inputStreamToBytes(inputStream, httpResponse.getContentLength());
+                    responseContents = inputStreamToBytes(inputStream, httpResponse.getContentLength());
                 }
                 else
                 {
@@ -149,7 +146,7 @@ public class BasicNetwork implements Network
                 return new NetworkResponse(
                         statusCode,
                         responseContents,
-                        /* notModified= */ false,
+                        false,
                         SystemClock.elapsedRealtime() - requestStart,
                         responseHeaders);
             }
@@ -176,18 +173,16 @@ public class BasicNetwork implements Network
                 NetworkResponse networkResponse;
                 if (responseContents != null)
                 {
-                    networkResponse =
-                            new NetworkResponse(
-                                    statusCode,
-                                    responseContents,
-                                    /* notModified= */ false,
-                                    SystemClock.elapsedRealtime() - requestStart,
-                                    responseHeaders);
-                    if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED
-                            || statusCode == HttpURLConnection.HTTP_FORBIDDEN)
+                    networkResponse = new NetworkResponse(
+                            statusCode,
+                            responseContents,
+                            false,
+                            SystemClock.elapsedRealtime() - requestStart,
+                            responseHeaders);
+                    if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED // 401
+                            || statusCode == HttpURLConnection.HTTP_FORBIDDEN) //403
                     {
-                        attemptRetryOnException(
-                                "auth", request, new AuthFailureError(networkResponse));
+                        attemptRetryOnException("auth", request, new AuthFailureError(networkResponse));
                     }
                     else if (statusCode >= 400 && statusCode <= 499)
                     {
@@ -198,8 +193,7 @@ public class BasicNetwork implements Network
                     {
                         if (request.shouldRetryServerErrors())
                         {
-                            attemptRetryOnException(
-                                    "server", request, new ServerError(networkResponse));
+                            attemptRetryOnException("server", request, new ServerError(networkResponse));
                         }
                         else
                         {
@@ -223,8 +217,10 @@ public class BasicNetwork implements Network
     /**
      * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.
      */
-    private void logSlowRequests(
-            long requestLifetime, Request<?> request, byte[] responseContents, int statusCode)
+    private void logSlowRequests(long requestLifetime,
+                                 Request<?> request,
+                                 byte[] responseContents,
+                                 int statusCode)
     {
         if (DEBUG || requestLifetime > SLOW_REQUEST_THRESHOLD_MS)
         {
@@ -245,8 +241,9 @@ public class BasicNetwork implements Network
      *
      * @param request The request to use.
      */
-    private static void attemptRetryOnException(
-            String logPrefix, Request<?> request, VolleyError exception) throws VolleyError
+    private static void attemptRetryOnException(String logPrefix,
+                                                Request<?> request,
+                                                VolleyError exception) throws VolleyError
     {
         RetryPolicy retryPolicy = request.getRetryPolicy();
         int oldTimeout = request.getTimeoutMs();
@@ -257,8 +254,7 @@ public class BasicNetwork implements Network
         }
         catch (VolleyError e)
         {
-            request.addMarker(
-                    String.format("%s-timeout-giveup [timeout=%s]", logPrefix, oldTimeout));
+            request.addMarker(String.format("%s-timeout-giveup [timeout=%s]", logPrefix, oldTimeout));
             throw e;
         }
         request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
@@ -281,8 +277,7 @@ public class BasicNetwork implements Network
 
         if (entry.lastModified > 0)
         {
-            headers.put(
-                    "If-Modified-Since", HttpHeaderParser.formatEpochAsRfc1123(entry.lastModified));
+            headers.put("If-Modified-Since", HttpHeaderParser.formatEpochAsRfc1123(entry.lastModified));
         }
 
         return headers;
@@ -297,8 +292,8 @@ public class BasicNetwork implements Network
     /**
      * Reads the contents of an InputStream into a byte[].
      */
-    private byte[] inputStreamToBytes(InputStream in, int contentLength)
-            throws IOException, ServerError
+    private byte[] inputStreamToBytes(InputStream in,
+                                      int contentLength) throws IOException, ServerError
     {
         PoolingByteArrayOutputStream bytes = new PoolingByteArrayOutputStream(mPool, contentLength);
         byte[] buffer = null;

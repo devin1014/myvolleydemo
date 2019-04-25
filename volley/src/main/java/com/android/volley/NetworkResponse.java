@@ -28,6 +28,87 @@ import java.util.TreeMap;
  */
 public class NetworkResponse
 {
+    /**
+     * The HTTP status code.
+     */
+    public final int statusCode;
+
+    /**
+     * Raw data from this response.
+     */
+    public final byte[] data;
+
+    /**
+     * Response headers.
+     *
+     * <p>This map is case-insensitive. It should not be mutated directly.
+     *
+     * <p>Note that if the server returns two headers with the same (case-insensitive) name, this
+     * map will only contain the last one. Use {@link #allHeaders} to inspect all headers returned
+     * by the server.
+     */
+    public final Map<String, String> headers;
+
+    /**
+     * All response headers. Must not be mutated directly.
+     */
+    public final List<Header> allHeaders;
+
+    /**
+     * True if the server returned a 304 (Not Modified).
+     */
+    public final boolean notModified;
+
+    /**
+     * Network round trip time in milliseconds.
+     */
+    public final long networkTimeMs;
+
+    /**
+     * Creates a new network response for an OK response with no headers.
+     *
+     * @param data Response body
+     */
+    public NetworkResponse(byte[] data)
+    {
+        this(HttpURLConnection.HTTP_OK, data, false, 0, Collections.<Header>emptyList());
+    }
+
+    /**
+     * Creates a new network response for an OK response.
+     *
+     * @param data    Response body
+     * @param headers Headers returned with this response, or null for none
+     * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
+     * cannot handle server responses containing multiple headers with the same name. This
+     * constructor may be removed in a future release of Volley.
+     */
+    @Deprecated
+    public NetworkResponse(byte[] data,
+                           Map<String, String> headers)
+    {
+        this(HttpURLConnection.HTTP_OK, data, headers, false, 0);
+    }
+
+    /**
+     * Creates a new network response.
+     *
+     * @param statusCode  the HTTP status code
+     * @param data        Response body
+     * @param headers     Headers returned with this response, or null for none
+     * @param notModified True if the server returned a 304 and the data was already in cache
+     * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
+     * cannot handle server responses containing multiple headers with the same name. This
+     * constructor may be removed in a future release of Volley.
+     */
+    @Deprecated
+    public NetworkResponse(int statusCode,
+                           byte[] data,
+                           Map<String, String> headers,
+                           boolean notModified)
+    {
+        this(statusCode, data, headers, notModified, 0);
+    }
 
     /**
      * Creates a new network response.
@@ -71,59 +152,6 @@ public class NetworkResponse
         this(statusCode, data, toHeaderMap(allHeaders), allHeaders, notModified, networkTimeMs);
     }
 
-    /**
-     * Creates a new network response.
-     *
-     * @param statusCode  the HTTP status code
-     * @param data        Response body
-     * @param headers     Headers returned with this response, or null for none
-     * @param notModified True if the server returned a 304 and the data was already in cache
-     * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
-     * cannot handle server responses containing multiple headers with the same name. This
-     * constructor may be removed in a future release of Volley.
-     */
-    @Deprecated
-    public NetworkResponse(
-            int statusCode, byte[] data, Map<String, String> headers, boolean notModified)
-    {
-        this(statusCode, data, headers, notModified, /* networkTimeMs= */ 0);
-    }
-
-    /**
-     * Creates a new network response for an OK response with no headers.
-     *
-     * @param data Response body
-     */
-    public NetworkResponse(byte[] data)
-    {
-        this(
-                HttpURLConnection.HTTP_OK,
-                data,
-                /* notModified= */ false,
-                /* networkTimeMs= */ 0,
-                Collections.<Header>emptyList());
-    }
-
-    /**
-     * Creates a new network response for an OK response.
-     *
-     * @param data    Response body
-     * @param headers Headers returned with this response, or null for none
-     * @deprecated see {@link #NetworkResponse(int, byte[], boolean, long, List)}. This constructor
-     * cannot handle server responses containing multiple headers with the same name. This
-     * constructor may be removed in a future release of Volley.
-     */
-    @Deprecated
-    public NetworkResponse(byte[] data, Map<String, String> headers)
-    {
-        this(
-                HttpURLConnection.HTTP_OK,
-                data,
-                headers,
-                /* notModified= */ false,
-                /* networkTimeMs= */ 0);
-    }
-
     private NetworkResponse(
             int statusCode,
             byte[] data,
@@ -135,53 +163,10 @@ public class NetworkResponse
         this.statusCode = statusCode;
         this.data = data;
         this.headers = headers;
-        if (allHeaders == null)
-        {
-            this.allHeaders = null;
-        }
-        else
-        {
-            this.allHeaders = Collections.unmodifiableList(allHeaders);
-        }
+        this.allHeaders = allHeaders == null ? null : Collections.unmodifiableList(allHeaders);
         this.notModified = notModified;
         this.networkTimeMs = networkTimeMs;
     }
-
-    /**
-     * The HTTP status code.
-     */
-    public final int statusCode;
-
-    /**
-     * Raw data from this response.
-     */
-    public final byte[] data;
-
-    /**
-     * Response headers.
-     *
-     * <p>This map is case-insensitive. It should not be mutated directly.
-     *
-     * <p>Note that if the server returns two headers with the same (case-insensitive) name, this
-     * map will only contain the last one. Use {@link #allHeaders} to inspect all headers returned
-     * by the server.
-     */
-    public final Map<String, String> headers;
-
-    /**
-     * All response headers. Must not be mutated directly.
-     */
-    public final List<Header> allHeaders;
-
-    /**
-     * True if the server returned a 304 (Not Modified).
-     */
-    public final boolean notModified;
-
-    /**
-     * Network roundtrip time in milliseconds.
-     */
-    public final long networkTimeMs;
 
     private static Map<String, String> toHeaderMap(List<Header> allHeaders)
     {

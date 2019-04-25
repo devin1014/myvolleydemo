@@ -25,7 +25,6 @@ import com.android.volley.exception.VolleyError;
  */
 public class Response<T>
 {
-
     /**
      * Callback interface for delivering parsed responses.
      */
@@ -47,23 +46,6 @@ public class Response<T>
          * user-readable message.
          */
         void onErrorResponse(VolleyError error);
-    }
-
-    /**
-     * Returns a successful response containing the parsed result.
-     */
-    public static <T> Response<T> success(T result, Cache.Entry cacheEntry)
-    {
-        return new Response<>(result, cacheEntry);
-    }
-
-    /**
-     * Returns a failed response containing the given error code and an optional localized message
-     * displayed to the user.
-     */
-    public static <T> Response<T> error(VolleyError error)
-    {
-        return new Response<>(error);
     }
 
     /**
@@ -94,7 +76,8 @@ public class Response<T>
         return error == null;
     }
 
-    private Response(T result, Cache.Entry cacheEntry)
+    private Response(T result,
+                     Cache.Entry cacheEntry)
     {
         this.result = result;
         this.cacheEntry = cacheEntry;
@@ -106,5 +89,22 @@ public class Response<T>
         this.result = null;
         this.cacheEntry = null;
         this.error = error;
+    }
+
+    /**
+     * Returns a successful response containing the parsed result.
+     */
+    public static <T> Response<T> success(T result, Cache.Entry cacheEntry)
+    {
+        return new Response<>(result, cacheEntry);
+    }
+
+    /**
+     * Returns a failed response containing the given error code and an optional localized message
+     * displayed to the user.
+     */
+    public static <T> Response<T> error(VolleyError error)
+    {
+        return new Response<>(error);
     }
 }

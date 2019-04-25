@@ -25,41 +25,10 @@ import java.io.File;
 
 public class Volley
 {
-
     /**
      * Default on-disk cache directory.
      */
-    private static final String DEFAULT_CACHE_DIR = "volley";
-
-    /**
-     * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
-     *
-     * @param context A {@link Context} to use for creating the cache dir.
-     * @param stack   A {@link HttpStack} to use for the network, or null for default.
-     * @return A started {@link RequestQueue} instance.
-     */
-    public static RequestQueue newRequestQueue(Context context, HttpStack stack)
-    {
-        BasicNetwork network;
-        if (stack == null)
-        {
-            network = new BasicNetwork(new HttpUrlConnectionStack());
-        }
-        else
-        {
-            network = new BasicNetwork(stack);
-        }
-
-        return newRequestQueue(context, network);
-    }
-
-    private static RequestQueue newRequestQueue(Context context, Network network)
-    {
-        File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
-        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir), network);
-        queue.start();
-        return queue;
-    }
+    private static final String DEFAULT_CACHE_DIR = "volley2";
 
     /**
      * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
@@ -70,5 +39,27 @@ public class Volley
     public static RequestQueue newRequestQueue(Context context)
     {
         return newRequestQueue(context, (HttpStack) null);
+    }
+
+    /**
+     * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
+     *
+     * @param context A {@link Context} to use for creating the cache dir.
+     * @param stack   A {@link HttpStack} to use for the network, or null for default.
+     * @return A started {@link RequestQueue} instance.
+     */
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack)
+    {
+        BasicNetwork network = new BasicNetwork(stack == null ? new HttpUrlConnectionStack() : stack);
+
+        return newRequestQueue(context, network);
+    }
+
+    private static RequestQueue newRequestQueue(Context context, Network network)
+    {
+        File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
+        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir), network);
+        queue.start();
+        return queue;
     }
 }

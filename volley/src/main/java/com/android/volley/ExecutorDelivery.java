@@ -17,6 +17,7 @@
 package com.android.volley;
 
 import android.os.Handler;
+import android.support.annotation.NonNull;
 
 import com.android.volley.exception.VolleyError;
 
@@ -40,15 +41,14 @@ public class ExecutorDelivery implements ResponseDelivery
     public ExecutorDelivery(final Handler handler)
     {
         // Make an Executor that just wraps the handler.
-        mResponsePoster =
-                new Executor()
-                {
-                    @Override
-                    public void execute(Runnable command)
-                    {
-                        handler.post(command);
-                    }
-                };
+        mResponsePoster = new Executor()
+        {
+            @Override
+            public void execute(@NonNull Runnable command)
+            {
+                handler.post(command);
+            }
+        };
     }
 
     /**
@@ -62,13 +62,16 @@ public class ExecutorDelivery implements ResponseDelivery
     }
 
     @Override
-    public void postResponse(Request<?> request, Response<?> response)
+    public void postResponse(Request<?> request,
+                             Response<?> response)
     {
         postResponse(request, response, null);
     }
 
     @Override
-    public void postResponse(Request<?> request, Response<?> response, Runnable runnable)
+    public void postResponse(Request<?> request,
+                             Response<?> response,
+                             Runnable runnable)
     {
         request.markDelivered();
         request.addMarker("post-response");
@@ -93,7 +96,9 @@ public class ExecutorDelivery implements ResponseDelivery
         private final Response mResponse;
         private final Runnable mRunnable;
 
-        public ResponseDeliveryRunnable(Request request, Response response, Runnable runnable)
+        ResponseDeliveryRunnable(Request request,
+                                 Response response,
+                                 Runnable runnable)
         {
             mRequest = request;
             mResponse = response;

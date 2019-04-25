@@ -39,22 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RequestQueue
 {
-
-    /**
-     * Callback interface for completed requests.
-     */
-    // TODO: This should not be a generic class, because the request type can't be determined at
-    // compile time, so all calls to onRequestFinished are unsafe. However, changing this would be
-    // an API-breaking change. See also: https://github.com/google/volley/pull/109
-    @Deprecated // Use RequestEventListener instead.
-    public interface RequestFinishedListener<T>
-    {
-        /**
-         * Called when a request has finished processing.
-         */
-        void onRequestFinished(Request<T> request);
-    }
-
     /**
      * Request event types the listeners {@link RequestEventListener} will be notified about.
      */
@@ -72,29 +56,29 @@ public class RequestQueue
         /**
          * The request was added to the queue.
          */
-        public static final int REQUEST_QUEUED = 0;
+        int REQUEST_QUEUED = 0;
         /**
          * Cache lookup started for the request.
          */
-        public static final int REQUEST_CACHE_LOOKUP_STARTED = 1;
+        int REQUEST_CACHE_LOOKUP_STARTED = 1;
         /**
          * Cache lookup finished for the request and cached response is delivered or request is
          * queued for network dispatching.
          */
-        public static final int REQUEST_CACHE_LOOKUP_FINISHED = 2;
+        int REQUEST_CACHE_LOOKUP_FINISHED = 2;
         /**
          * Network dispatch started for the request.
          */
-        public static final int REQUEST_NETWORK_DISPATCH_STARTED = 3;
+        int REQUEST_NETWORK_DISPATCH_STARTED = 3;
         /**
          * The network dispatch finished for the request and response (if any) is delivered.
          */
-        public static final int REQUEST_NETWORK_DISPATCH_FINISHED = 4;
+        int REQUEST_NETWORK_DISPATCH_FINISHED = 4;
         /**
          * All the work associated with the request is finished and request is removed from all the
          * queues.
          */
-        public static final int REQUEST_FINISHED = 5;
+        int REQUEST_FINISHED = 5;
     }
 
     /**
@@ -161,12 +145,36 @@ public class RequestQueue
      */
     private CacheDispatcher mCacheDispatcher;
 
-    private final List<RequestFinishedListener> mFinishedListeners = new ArrayList<>();
-
     /**
      * Collection of listeners for request life cycle events.
      */
     private final List<RequestEventListener> mEventListeners = new ArrayList<>();
+
+    /**
+     * Creates the worker pool. Processing will not begin until {@link #start()} is called.
+     *
+     * @param cache   A Cache to use for persisting responses to disk
+     * @param network A Network interface for performing HTTP requests
+     */
+    public RequestQueue(Cache cache,
+                        Network network)
+    {
+        this(cache, network, DEFAULT_NETWORK_THREAD_POOL_SIZE);
+    }
+
+    /**
+     * Creates the worker pool. Processing will not begin until {@link #start()} is called.
+     *
+     * @param cache          A Cache to use for persisting responses to disk
+     * @param network        A Network interface for performing HTTP requests
+     * @param threadPoolSize Number of network dispatcher threads to create
+     */
+    public RequestQueue(Cache cache,
+                        Network network,
+                        int threadPoolSize)
+    {
+        this(cache, network, threadPoolSize, new ExecutorDelivery(new Handler(Looper.getMainLooper())));
+    }
 
     /**
      * Creates the worker pool. Processing will not begin until {@link #start()} is called.
@@ -176,40 +184,15 @@ public class RequestQueue
      * @param threadPoolSize Number of network dispatcher threads to create
      * @param delivery       A ResponseDelivery interface for posting responses and errors
      */
-    public RequestQueue(
-            Cache cache, Network network, int threadPoolSize, ResponseDelivery delivery)
+    public RequestQueue(Cache cache,
+                        Network network,
+                        int threadPoolSize,
+                        ResponseDelivery delivery)
     {
         mCache = cache;
         mNetwork = network;
         mDispatchers = new NetworkDispatcher[threadPoolSize];
         mDelivery = delivery;
-    }
-
-    /**
-     * Creates the worker pool. Processing will not begin until {@link #start()} is called.
-     *
-     * @param cache          A Cache to use for persisting responses to disk
-     * @param network        A Network interface for performing HTTP requests
-     * @param threadPoolSize Number of network dispatcher threads to create
-     */
-    public RequestQueue(Cache cache, Network network, int threadPoolSize)
-    {
-        this(
-                cache,
-                network,
-                threadPoolSize,
-                new ExecutorDelivery(new Handler(Looper.getMainLooper())));
-    }
-
-    /**
-     * Creates the worker pool. Processing will not begin until {@link #start()} is called.
-     *
-     * @param cache   A Cache to use for persisting responses to disk
-     * @param network A Network interface for performing HTTP requests
-     */
-    public RequestQueue(Cache cache, Network network)
-    {
-        this(cache, network, DEFAULT_NETWORK_THREAD_POOL_SIZE);
     }
 
     /**
@@ -225,8 +208,7 @@ public class RequestQueue
         // Create network dispatchers (and corresponding threads) up to the pool size.
         for (int i = 0; i < mDispatchers.length; i++)
         {
-            NetworkDispatcher networkDispatcher =
-                    new NetworkDispatcher(mNetworkQueue, mNetwork, mCache, mDelivery);
+            NetworkDispatcher networkDispatcher = new NetworkDispatcher(mNetworkQueue, mNetwork, mCache, mDelivery);
             mDispatchers[i] = networkDispatcher;
             networkDispatcher.start();
         }
@@ -358,13 +340,6 @@ public class RequestQueue
         {
             mCurrentRequests.remove(request);
         }
-        synchronized (mFinishedListeners)
-        {
-            for (RequestFinishedListener<T> listener : mFinishedListeners)
-            {
-                listener.onRequestFinished(request);
-            }
-        }
         sendRequestEvent(request, RequestEvent.REQUEST_FINISHED);
     }
 
@@ -401,27 +376,6 @@ public class RequestQueue
         synchronized (mEventListeners)
         {
             mEventListeners.remove(listener);
-        }
-    }
-
-    @Deprecated // Use RequestEventListener instead.
-    public <T> void addRequestFinishedListener(RequestFinishedListener<T> listener)
-    {
-        synchronized (mFinishedListeners)
-        {
-            mFinishedListeners.add(listener);
-        }
-    }
-
-    /**
-     * Remove a RequestFinishedListener. Has no effect if listener was not previously added.
-     */
-    @Deprecated // Use RequestEventListener instead.
-    public <T> void removeRequestFinishedListener(RequestFinishedListener<T> listener)
-    {
-        synchronized (mFinishedListeners)
-        {
-            mFinishedListeners.remove(listener);
         }
     }
 }

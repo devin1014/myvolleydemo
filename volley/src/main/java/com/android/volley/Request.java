@@ -22,9 +22,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.CallSuper;
 import android.support.annotation.GuardedBy;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.android.volley.RequestQueue.RequestEvent;
 import com.android.volley.VolleyLog.MarkerLog;
 import com.android.volley.exception.AuthFailureError;
 import com.android.volley.exception.TimeoutError;
@@ -43,7 +45,6 @@ import java.util.Map;
  */
 public abstract class Request<T> implements Comparable<Request<T>>
 {
-
     /**
      * Default encoding for POST or PUT parameters. See {@link #getParamsEncoding()}.
      */
@@ -70,7 +71,6 @@ public abstract class Request<T> implements Comparable<Request<T>>
      */
     /* package */ interface NetworkRequestCompleteListener
     {
-
         /**
          * Callback when a network response has been received.
          */
@@ -179,7 +179,8 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * @deprecated Use {@link #Request(int, String, com.android.volley.Response.ErrorListener)}.
      */
     @Deprecated
-    public Request(String url, Response.ErrorListener listener)
+    public Request(String url,
+                   Response.ErrorListener listener)
     {
         this(Method.DEPRECATED_GET_OR_POST, url, listener);
     }
@@ -190,7 +191,9 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * responses is provided by subclasses, who have a better idea of how to deliver an
      * already-parsed response.
      */
-    public Request(int method, String url, @Nullable Response.ErrorListener listener)
+    public Request(int method,
+                   String url,
+                   @Nullable Response.ErrorListener listener)
     {
         mMethod = method;
         mUrl = url;
@@ -311,16 +314,15 @@ public abstract class Request<T> implements Comparable<Request<T>>
                 // If we finish marking off of the main thread, we need to
                 // actually do it on the main thread to ensure correct ordering.
                 Handler mainThread = new Handler(Looper.getMainLooper());
-                mainThread.post(
-                        new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                mEventLog.add(tag, threadId);
-                                mEventLog.finish(Request.this.toString());
-                            }
-                        });
+                mainThread.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        mEventLog.add(tag, threadId);
+                        mEventLog.finish(Request.this.toString());
+                    }
+                });
                 return;
             }
 
@@ -329,7 +331,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
         }
     }
 
-    void sendEvent(@RequestQueue.RequestEvent int event)
+    void sendEvent(@RequestEvent int event)
     {
         if (mRequestQueue != null)
         {
@@ -778,8 +780,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * {@link NetworkRequestCompleteListener} that will receive callbacks when the request returns
      * from the network.
      */
-    /* package */ void setNetworkRequestCompleteListener(
-            NetworkRequestCompleteListener requestCompleteListener)
+    /* package */ void setNetworkRequestCompleteListener(NetworkRequestCompleteListener requestCompleteListener)
     {
         synchronized (mLock)
         {
@@ -828,7 +829,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * FIFO ordering.
      */
     @Override
-    public int compareTo(Request<T> other)
+    public int compareTo(@NonNull Request<T> other)
     {
         Priority left = this.getPriority();
         Priority right = other.getPriority();
@@ -838,6 +839,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
         return left == right ? this.mSequence - other.mSequence : right.ordinal() - left.ordinal();
     }
 
+    @NonNull
     @Override
     public String toString()
     {

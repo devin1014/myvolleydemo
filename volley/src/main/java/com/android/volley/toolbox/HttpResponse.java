@@ -26,7 +26,6 @@ import java.util.List;
  */
 public final class HttpResponse
 {
-
     private final int mStatusCode;
     private final List<Header> mHeaders;
     private final int mContentLength;
@@ -38,9 +37,13 @@ public final class HttpResponse
      * @param statusCode the HTTP status code of the response
      * @param headers    the response headers
      */
-    public HttpResponse(int statusCode, List<Header> headers)
+    public HttpResponse(int statusCode,
+                        List<Header> headers)
     {
-        this(statusCode, headers, /* contentLength= */ -1, /* content= */ null);
+        this(statusCode,
+                headers,
+                -1,
+                null);
     }
 
     /**
@@ -52,8 +55,10 @@ public final class HttpResponse
      * @param content       an {@link InputStream} of the response content. May be null to indicate that
      *                      the response has no content.
      */
-    public HttpResponse(
-            int statusCode, List<Header> headers, int contentLength, InputStream content)
+    public HttpResponse(int statusCode,
+                        List<Header> headers,
+                        int contentLength,
+                        InputStream content)
     {
         mStatusCode = statusCode;
         mHeaders = headers;

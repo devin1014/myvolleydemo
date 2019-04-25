@@ -38,7 +38,6 @@ import java.util.concurrent.BlockingQueue;
  */
 public class NetworkDispatcher extends Thread
 {
-
     /**
      * The queue of requests to service.
      */
@@ -95,10 +94,7 @@ public class NetworkDispatcher extends Thread
     private void addTrafficStatsTag(Request<?> request)
     {
         // Tag the request (if API >= 14)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-        {
-            TrafficStats.setThreadStatsTag(request.getTrafficStatsTag());
-        }
+        TrafficStats.setThreadStatsTag(request.getTrafficStatsTag());
     }
 
     @Override
@@ -119,9 +115,8 @@ public class NetworkDispatcher extends Thread
                     Thread.currentThread().interrupt();
                     return;
                 }
-                VolleyLog.e(
-                        "Ignoring spurious interrupt of NetworkDispatcher thread; "
-                                + "use quit() to terminate it");
+                VolleyLog.e("Ignoring spurious interrupt of NetworkDispatcher thread; "
+                        + "use quit() to terminate it");
             }
         }
     }
