@@ -24,13 +24,13 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView.ScaleType;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.network.NetworkResponse;
-import com.android.volley.exception.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy.DefaultRetryPolicy;
 import com.android.volley.VolleyLog;
+import com.android.volley.exception.ParseError;
 import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.NetworkResponse;
 
 
 /**

@@ -16,7 +16,12 @@
 
 package com.android.volley;
 
+import android.os.Handler;
+import android.support.annotation.NonNull;
+
 import com.android.volley.exception.VolleyError;
+
+import java.util.concurrent.Executor;
 
 public interface ResponseDelivery
 {
@@ -35,4 +40,135 @@ public interface ResponseDelivery
      * Posts an error for the given request.
      */
     void postError(Request<?> request, VolleyError error);
+
+    // --------------------------------------------------------------------------------------------------
+    // - Impl
+    // - Delivers responses and errors.
+    // --------------------------------------------------------------------------------------------------
+    class DefaultResponseDelivery implements ResponseDelivery
+    {
+        /**
+         * Used for posting responses, typically to the main thread.
+         */
+        private final Executor mResponsePoster;
+
+        /**
+         * Creates a new response delivery interface.
+         *
+         * @param handler {@link Handler} to post responses on
+         */
+        public DefaultResponseDelivery(final Handler handler)
+        {
+            // Make an Executor that just wraps the handler.
+            mResponsePoster = new Executor()
+            {
+                @Override
+                public void execute(@NonNull Runnable command)
+                {
+                    handler.post(command);
+                }
+            };
+        }
+
+        /**
+         * Creates a new response delivery interface, mockable version for testing.
+         *
+         * @param executor For running delivery tasks
+         */
+        public DefaultResponseDelivery(Executor executor)
+        {
+            mResponsePoster = executor;
+        }
+
+        @Override
+        public void postResponse(Request<?> request,
+                                 Response<?> response)
+        {
+            postResponse(request, response, null);
+        }
+
+        @Override
+        public void postResponse(Request<?> request,
+                                 Response<?> response,
+                                 Runnable runnable)
+        {
+            request.markDelivered();
+            request.addMarker("post-response");
+            mResponsePoster.execute(new ResponseDeliveryRunnable(request, response, runnable));
+        }
+
+        @Override
+        public void postError(Request<?> request, VolleyError error)
+        {
+            request.addMarker("post-error");
+            Response<?> response = Response.error(error);
+            mResponsePoster.execute(new ResponseDeliveryRunnable(request, response, null));
+        }
+
+        /**
+         * A Runnable used for delivering network responses to a listener on the main thread.
+         */
+        @SuppressWarnings("rawtypes")
+        private static class ResponseDeliveryRunnable implements Runnable
+        {
+            private final Request mRequest;
+            private final Response mResponse;
+            private final Runnable mRunnable;
+
+            ResponseDeliveryRunnable(Request request,
+                                     Response response,
+                                     Runnable runnable)
+            {
+                mRequest = request;
+                mResponse = response;
+                mRunnable = runnable;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void run()
+            {
+                // NOTE: If cancel() is called off the thread that we're currently running in (by
+                // default, the main thread), we cannot guarantee that deliverResponse()/deliverError()
+                // won't be called, since it may be canceled after we check isCanceled() but before we
+                // deliver the response. Apps concerned about this guarantee must either call cancel()
+                // from the same thread or implement their own guarantee about not invoking their
+                // listener after cancel() has been called.
+
+                // If this request has canceled, finish it and don't deliver.
+                if (mRequest.isCanceled())
+                {
+                    mRequest.finish("canceled-at-delivery");
+                    return;
+                }
+
+                // Deliver a normal response or error, depending.
+                if (mResponse.isSuccess())
+                {
+                    mRequest.deliverResponse(mResponse.result);
+                }
+                else
+                {
+                    mRequest.deliverError(mResponse.error);
+                }
+
+                // If this is an intermediate response, add a marker, otherwise we're done
+                // and the request can be finished.
+                if (mResponse.intermediate)
+                {
+                    mRequest.addMarker("intermediate-response");
+                }
+                else
+                {
+                    mRequest.finish("done");
+                }
+
+                // If we have been provided a post-delivery runnable, run it.
+                if (mRunnable != null)
+                {
+                    mRunnable.run();
+                }
+            }
+        }
+    }
 }

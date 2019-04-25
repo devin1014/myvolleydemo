@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.android.volley.RequestQueue.RequestEvent;
+import com.android.volley.RetryPolicy.DefaultRetryPolicy;
 import com.android.volley.VolleyLog.MarkerLog;
 import com.android.volley.exception.AuthFailureError;
 import com.android.volley.exception.TimeoutError;

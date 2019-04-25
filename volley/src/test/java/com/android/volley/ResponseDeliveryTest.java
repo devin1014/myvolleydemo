@@ -16,6 +16,7 @@
 
 package com.android.volley;
 
+import com.android.volley.ResponseDelivery.DefaultResponseDelivery;
 import com.android.volley.exception.ServerError;
 import com.android.volley.mock.MockRequest;
 import com.android.volley.utils.CacheTestUtils;
@@ -32,7 +33,6 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 public class ResponseDeliveryTest
 {
-
     private DefaultResponseDelivery mDelivery;
     private MockRequest mRequest;
     private Response<byte[]> mSuccessResponse;

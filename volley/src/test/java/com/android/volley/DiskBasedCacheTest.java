@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley;
 
-import com.android.volley.Cache;
-import com.android.volley.DiskBasedCache;
+import com.android.volley.DiskCache.CacheHeader;
+import com.android.volley.DiskCache.CountingInputStream;
 import com.android.volley.network.Header;
-import com.android.volley.DiskBasedCache.CacheHeader;
-import com.android.volley.DiskBasedCache.CountingInputStream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +78,7 @@ public class DiskBasedCacheTest
     public void setup() throws IOException
     {
         // Initialize empty cache
-        cache = new DiskBasedCache(temporaryFolder.getRoot(), MAX_SIZE);
+        cache = new DiskCache(temporaryFolder.getRoot(), MAX_SIZE);
         cache.initialize();
     }
 
@@ -147,7 +145,7 @@ public class DiskBasedCacheTest
         Cache.Entry entry = randomData(1023);
         cache.put("key", entry);
 
-        Cache copy = new DiskBasedCache(temporaryFolder.getRoot(), MAX_SIZE);
+        Cache copy = new DiskCache(temporaryFolder.getRoot(), MAX_SIZE);
         copy.initialize();
 
         assertThatEntriesAreEqual(copy.get("key"), entry);
@@ -231,7 +229,7 @@ public class DiskBasedCacheTest
 
         Cache.Entry entry =
                 randomData(
-                        (int) (DiskBasedCache.HYSTERESIS_FACTOR * MAX_SIZE)
+                        (int) (DiskCache.HYSTERESIS_FACTOR * MAX_SIZE)
                                 - getEntrySizeOnDisk("max"));
         cache.put("max", entry);
 
@@ -257,7 +255,7 @@ public class DiskBasedCacheTest
 
         Cache.Entry entry =
                 randomData(
-                        (int) (DiskBasedCache.HYSTERESIS_FACTOR * MAX_SIZE)
+                        (int) (DiskCache.HYSTERESIS_FACTOR * MAX_SIZE)
                                 - getEntrySizeOnDisk("max")
                                 + 1);
         cache.put("max", entry);
@@ -330,7 +328,7 @@ public class DiskBasedCacheTest
         FileOutputStream fos = new FileOutputStream(file);
         try
         {
-            DiskBasedCache.writeInt(fos, 0); // overwrite magic
+            DiskCache.writeInt(fos, 0); // overwrite magic
         }
         finally
         {
@@ -381,7 +379,7 @@ public class DiskBasedCacheTest
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(data), data.length);
         exception.expect(IOException.class);
-        DiskBasedCache.streamToBytes(cis, -1);
+        DiskCache.streamToBytes(cis, -1);
     }
 
     @Test
@@ -391,7 +389,7 @@ public class DiskBasedCacheTest
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(data), data.length);
         exception.expect(IOException.class);
-        DiskBasedCache.streamToBytes(cis, 2);
+        DiskCache.streamToBytes(cis, 2);
     }
 
     @Test
@@ -401,7 +399,7 @@ public class DiskBasedCacheTest
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(data), 0x100000000L);
         exception.expect(IOException.class);
-        DiskBasedCache.streamToBytes(cis, 0x100000000L); // int value is 0
+        DiskCache.streamToBytes(cis, 0x100000000L); // int value is 0
     }
 
     @Test
@@ -410,13 +408,13 @@ public class DiskBasedCacheTest
         // If a cached header list is corrupted and begins with a negative size,
         // verify that readHeaderList will throw an IOException.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DiskBasedCache.writeInt(baos, -1); // negative size
+        DiskCache.writeInt(baos, -1); // negative size
         CountingInputStream cis =
                 new CountingInputStream(
                         new ByteArrayInputStream(baos.toByteArray()), Integer.MAX_VALUE);
         // Expect IOException due to negative size
         exception.expect(IOException.class);
-        DiskBasedCache.readHeaderList(cis);
+        DiskCache.readHeaderList(cis);
     }
 
     @Test
@@ -425,12 +423,12 @@ public class DiskBasedCacheTest
         // If a cached header list is corrupted and begins with 2GB size, verify
         // that readHeaderList will throw EOFException rather than OutOfMemoryError.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DiskBasedCache.writeInt(baos, Integer.MAX_VALUE); // 2GB size
+        DiskCache.writeInt(baos, Integer.MAX_VALUE); // 2GB size
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(baos.toByteArray()), baos.size());
         // Expect EOFException when end of stream is reached
         exception.expect(EOFException.class);
-        DiskBasedCache.readHeaderList(cis);
+        DiskCache.readHeaderList(cis);
     }
 
     @Test
@@ -441,7 +439,7 @@ public class DiskBasedCacheTest
         doThrow(IOException.class).when(mockedOutputStream).write(anyInt());
 
         // Create read-only copy that fails to write anything
-        DiskBasedCache readonly = spy((DiskBasedCache) cache);
+        DiskCache readonly = spy((DiskCache) cache);
         doReturn(mockedOutputStream).when(readonly).createOutputStream(any(File.class));
 
         // Attempt to write
@@ -470,7 +468,7 @@ public class DiskBasedCacheTest
         doThrow(IOException.class).when(mockedInputStream).read();
 
         // Create broken cache that fails to read anything
-        DiskBasedCache broken = spy(new DiskBasedCache(temporaryFolder.getRoot()));
+        DiskCache broken = spy(new DiskCache(temporaryFolder.getRoot()));
         doReturn(mockedInputStream).when(broken).createInputStream(any(File.class));
 
         // Attempt to initialize
@@ -510,9 +508,9 @@ public class DiskBasedCacheTest
         //noinspection ThrowFromFinallyBlock
         try
         {
-            DiskBasedCache.writeInt(out, 1);
-            DiskBasedCache.writeLong(out, -1L);
-            DiskBasedCache.writeString(out, "hamburger");
+            DiskCache.writeInt(out, 1);
+            DiskCache.writeLong(out, -1L);
+            DiskCache.writeString(out, "hamburger");
         }
         finally
         {
@@ -528,9 +526,9 @@ public class DiskBasedCacheTest
         {
             assertThat(cis.bytesRemaining(), is(bytesWritten));
             assertThat(cis.bytesRead(), is(0L));
-            assertThat(DiskBasedCache.readInt(cis), is(1));
-            assertThat(DiskBasedCache.readLong(cis), is(-1L));
-            assertThat(DiskBasedCache.readString(cis), is("hamburger"));
+            assertThat(DiskCache.readInt(cis), is(1));
+            assertThat(DiskCache.readLong(cis), is(-1L));
+            assertThat(DiskCache.readString(cis), is("hamburger"));
             assertThat(cis.bytesRead(), is(bytesWritten));
             assertThat(cis.bytesRemaining(), is(0L));
         }
@@ -548,59 +546,59 @@ public class DiskBasedCacheTest
     {
         ByteArrayInputStream empty = new ByteArrayInputStream(new byte[]{});
         exception.expect(EOFException.class);
-        DiskBasedCache.readInt(empty);
+        DiskCache.readInt(empty);
     }
 
     @Test
     public void serializeInt() throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DiskBasedCache.writeInt(baos, 0);
-        DiskBasedCache.writeInt(baos, 19791214);
-        DiskBasedCache.writeInt(baos, -20050711);
-        DiskBasedCache.writeInt(baos, Integer.MIN_VALUE);
-        DiskBasedCache.writeInt(baos, Integer.MAX_VALUE);
+        DiskCache.writeInt(baos, 0);
+        DiskCache.writeInt(baos, 19791214);
+        DiskCache.writeInt(baos, -20050711);
+        DiskCache.writeInt(baos, Integer.MIN_VALUE);
+        DiskCache.writeInt(baos, Integer.MAX_VALUE);
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        assertEquals(DiskBasedCache.readInt(bais), 0);
-        assertEquals(DiskBasedCache.readInt(bais), 19791214);
-        assertEquals(DiskBasedCache.readInt(bais), -20050711);
-        assertEquals(DiskBasedCache.readInt(bais), Integer.MIN_VALUE);
-        assertEquals(DiskBasedCache.readInt(bais), Integer.MAX_VALUE);
+        assertEquals(DiskCache.readInt(bais), 0);
+        assertEquals(DiskCache.readInt(bais), 19791214);
+        assertEquals(DiskCache.readInt(bais), -20050711);
+        assertEquals(DiskCache.readInt(bais), Integer.MIN_VALUE);
+        assertEquals(DiskCache.readInt(bais), Integer.MAX_VALUE);
     }
 
     @Test
     public void serializeLong() throws Exception
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DiskBasedCache.writeLong(baos, 0);
-        DiskBasedCache.writeLong(baos, 31337);
-        DiskBasedCache.writeLong(baos, -4160);
-        DiskBasedCache.writeLong(baos, 4295032832L);
-        DiskBasedCache.writeLong(baos, -4314824046L);
-        DiskBasedCache.writeLong(baos, Long.MIN_VALUE);
-        DiskBasedCache.writeLong(baos, Long.MAX_VALUE);
+        DiskCache.writeLong(baos, 0);
+        DiskCache.writeLong(baos, 31337);
+        DiskCache.writeLong(baos, -4160);
+        DiskCache.writeLong(baos, 4295032832L);
+        DiskCache.writeLong(baos, -4314824046L);
+        DiskCache.writeLong(baos, Long.MIN_VALUE);
+        DiskCache.writeLong(baos, Long.MAX_VALUE);
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        assertEquals(DiskBasedCache.readLong(bais), 0);
-        assertEquals(DiskBasedCache.readLong(bais), 31337);
-        assertEquals(DiskBasedCache.readLong(bais), -4160);
-        assertEquals(DiskBasedCache.readLong(bais), 4295032832L);
-        assertEquals(DiskBasedCache.readLong(bais), -4314824046L);
-        assertEquals(DiskBasedCache.readLong(bais), Long.MIN_VALUE);
-        assertEquals(DiskBasedCache.readLong(bais), Long.MAX_VALUE);
+        assertEquals(DiskCache.readLong(bais), 0);
+        assertEquals(DiskCache.readLong(bais), 31337);
+        assertEquals(DiskCache.readLong(bais), -4160);
+        assertEquals(DiskCache.readLong(bais), 4295032832L);
+        assertEquals(DiskCache.readLong(bais), -4314824046L);
+        assertEquals(DiskCache.readLong(bais), Long.MIN_VALUE);
+        assertEquals(DiskCache.readLong(bais), Long.MAX_VALUE);
     }
 
     @Test
     public void serializeString() throws Exception
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DiskBasedCache.writeString(baos, "");
-        DiskBasedCache.writeString(baos, "This is a string.");
-        DiskBasedCache.writeString(baos, "ファイカス");
+        DiskCache.writeString(baos, "");
+        DiskCache.writeString(baos, "This is a string.");
+        DiskCache.writeString(baos, "ファイカス");
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(baos.toByteArray()), baos.size());
-        assertEquals(DiskBasedCache.readString(cis), "");
-        assertEquals(DiskBasedCache.readString(cis), "This is a string.");
-        assertEquals(DiskBasedCache.readString(cis), "ファイカス");
+        assertEquals(DiskCache.readString(cis), "");
+        assertEquals(DiskCache.readString(cis), "This is a string.");
+        assertEquals(DiskCache.readString(cis), "ファイカス");
     }
 
     @Test
@@ -608,40 +606,40 @@ public class DiskBasedCacheTest
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         List<Header> empty = new ArrayList<>();
-        DiskBasedCache.writeHeaderList(empty, baos);
-        DiskBasedCache.writeHeaderList(null, baos);
+        DiskCache.writeHeaderList(empty, baos);
+        DiskCache.writeHeaderList(null, baos);
         List<Header> twoThings = new ArrayList<>();
         twoThings.add(new Header("first", "thing"));
         twoThings.add(new Header("second", "item"));
-        DiskBasedCache.writeHeaderList(twoThings, baos);
+        DiskCache.writeHeaderList(twoThings, baos);
         List<Header> emptyKey = new ArrayList<>();
         emptyKey.add(new Header("", "value"));
-        DiskBasedCache.writeHeaderList(emptyKey, baos);
+        DiskCache.writeHeaderList(emptyKey, baos);
         List<Header> emptyValue = new ArrayList<>();
         emptyValue.add(new Header("key", ""));
-        DiskBasedCache.writeHeaderList(emptyValue, baos);
+        DiskCache.writeHeaderList(emptyValue, baos);
         List<Header> sameKeys = new ArrayList<>();
         sameKeys.add(new Header("key", "value"));
         sameKeys.add(new Header("key", "value2"));
-        DiskBasedCache.writeHeaderList(sameKeys, baos);
+        DiskCache.writeHeaderList(sameKeys, baos);
         CountingInputStream cis =
                 new CountingInputStream(new ByteArrayInputStream(baos.toByteArray()), baos.size());
-        assertEquals(DiskBasedCache.readHeaderList(cis), empty);
-        assertEquals(DiskBasedCache.readHeaderList(cis), empty); // null reads back empty
-        assertEquals(DiskBasedCache.readHeaderList(cis), twoThings);
-        assertEquals(DiskBasedCache.readHeaderList(cis), emptyKey);
-        assertEquals(DiskBasedCache.readHeaderList(cis), emptyValue);
-        assertEquals(DiskBasedCache.readHeaderList(cis), sameKeys);
+        assertEquals(DiskCache.readHeaderList(cis), empty);
+        assertEquals(DiskCache.readHeaderList(cis), empty); // null reads back empty
+        assertEquals(DiskCache.readHeaderList(cis), twoThings);
+        assertEquals(DiskCache.readHeaderList(cis), emptyKey);
+        assertEquals(DiskCache.readHeaderList(cis), emptyValue);
+        assertEquals(DiskCache.readHeaderList(cis), sameKeys);
     }
 
     @Test
     public void publicMethods() throws Exception
     {
         // Catch-all test to find API-breaking changes.
-        assertNotNull(DiskBasedCache.class.getConstructor(File.class, int.class));
-        assertNotNull(DiskBasedCache.class.getConstructor(File.class));
+        assertNotNull(DiskCache.class.getConstructor(File.class, int.class));
+        assertNotNull(DiskCache.class.getConstructor(File.class));
 
-        assertNotNull(DiskBasedCache.class.getMethod("getFileForKey", String.class));
+        assertNotNull(DiskCache.class.getMethod("getFileForKey", String.class));
     }
 
     /* Test helpers */

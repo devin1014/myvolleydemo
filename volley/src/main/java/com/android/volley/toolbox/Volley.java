@@ -18,7 +18,7 @@ package com.android.volley.toolbox;
 
 import android.content.Context;
 
-import com.android.volley.DiskBasedCache;
+import com.android.volley.DiskCache;
 import com.android.volley.RequestQueue;
 import com.android.volley.network.BasicNetwork;
 import com.android.volley.network.HttpStack;
@@ -62,7 +62,7 @@ public class Volley
     private static RequestQueue newRequestQueue(Context context, Network network)
     {
         File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
-        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir), network);
+        RequestQueue queue = new RequestQueue(new DiskCache(cacheDir), network);
         queue.start();
         return queue;
     }

@@ -48,7 +48,7 @@ import java.util.Map;
  *
  * <p>This cache supports the {@link Entry#allResponseHeaders} headers field.
  */
-public class DiskBasedCache implements Cache
+public class DiskCache implements Cache
 {
     /**
      * Map of the Key, CacheHeader pairs
@@ -94,7 +94,7 @@ public class DiskBasedCache implements Cache
      *                            briefly exceed this size on disk when writing a new entry that pushes it over the limit
      *                            until the ensuing pruning completes.
      */
-    public DiskBasedCache(File rootDirectory, int maxCacheSizeInBytes)
+    public DiskCache(File rootDirectory, int maxCacheSizeInBytes)
     {
         mRootDirectory = rootDirectory;
         mMaxCacheSizeInBytes = maxCacheSizeInBytes;
@@ -106,7 +106,7 @@ public class DiskBasedCache implements Cache
      *
      * @param rootDirectory The root directory of the cache.
      */
-    public DiskBasedCache(File rootDirectory)
+    public DiskCache(File rootDirectory)
     {
         this(rootDirectory, DEFAULT_DISK_USAGE_BYTES);
     }

@@ -18,7 +18,7 @@ package com.android.volley.utils;
 
 import android.support.annotation.NonNull;
 
-import com.android.volley.DefaultResponseDelivery;
+import com.android.volley.ResponseDelivery.DefaultResponseDelivery;
 
 import java.util.concurrent.Executor;
 
