@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 The Android Open Source Project
  *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.volley.toolbox;
+package com.android.volley.imageloader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,17 +21,16 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ImageView;
 
 import com.android.volley.exception.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.android.volley.imageloader.ImageLoader.ImageContainer;
+import com.android.volley.imageloader.ImageLoader.ImageListener;
 
 
 /**
  * Handles fetching an image from a URL as well as the life-cycle of the associated request.
  */
-public class NetworkImageView extends ImageView
+public class NetworkImageView extends android.support.v7.widget.AppCompatImageView
 {
     /**
      * The URL of the network image to load

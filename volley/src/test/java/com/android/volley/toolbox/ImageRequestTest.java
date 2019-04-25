@@ -23,6 +23,7 @@ import android.widget.ImageView.ScaleType;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
+import com.android.volley.imageloader.ImageRequest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

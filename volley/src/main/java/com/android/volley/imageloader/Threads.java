@@ -1,4 +1,4 @@
-package com.android.volley.toolbox;
+package com.android.volley.imageloader;
 
 import android.os.Looper;
 

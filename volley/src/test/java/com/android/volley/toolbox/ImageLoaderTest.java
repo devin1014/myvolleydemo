@@ -21,6 +21,7 @@ import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.imageloader.ImageLoader;
 
 import org.junit.Assert;
 import org.junit.Before;

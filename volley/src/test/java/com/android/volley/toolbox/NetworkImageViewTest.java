@@ -23,6 +23,9 @@ import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView.ScaleType;
 
+import com.android.volley.imageloader.ImageLoader;
+import com.android.volley.imageloader.NetworkImageView;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

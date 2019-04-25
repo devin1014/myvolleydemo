@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.volley.toolbox;
+package com.android.volley.imageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;

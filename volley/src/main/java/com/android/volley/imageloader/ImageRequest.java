@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.imageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -30,6 +30,7 @@ import com.android.volley.exception.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
 
 
 /**

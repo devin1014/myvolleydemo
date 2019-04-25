@@ -17,6 +17,7 @@
 package com.android.volley.toolbox;
 
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -108,7 +109,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>, Respon
     }
 
     @Override
-    public T get(long timeout, TimeUnit unit)
+    public T get(long timeout, @NonNull TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException
     {
         return doGet(TimeUnit.MILLISECONDS.convert(timeout, unit));
