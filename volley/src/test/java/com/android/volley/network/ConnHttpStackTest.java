@@ -47,12 +47,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-public class HurlStackTest
+public class ConnHttpStackTest
 {
 
     @Mock
     private HttpURLConnection mMockConnection;
-    private HttpUrlConnectionStack mHurlStack;
+    private ConnHttpStack mConnHttpStack;
 
     @Before
     public void setUp() throws Exception
@@ -60,8 +60,8 @@ public class HurlStackTest
         MockitoAnnotations.initMocks(this);
         when(mMockConnection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
 
-        mHurlStack =
-                new HttpUrlConnectionStack()
+        mConnHttpStack =
+                new ConnHttpStack()
                 {
                     @Override
                     protected HttpURLConnection createConnection(URL url)
@@ -77,7 +77,7 @@ public class HurlStackTest
         TestRequest.DeprecatedGet request = new TestRequest.DeprecatedGet();
         assertEquals(request.getMethod(), Method.DEPRECATED_GET_OR_POST);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection, never()).setRequestMethod(anyString());
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -88,7 +88,7 @@ public class HurlStackTest
         TestRequest.DeprecatedPost request = new TestRequest.DeprecatedPost();
         assertEquals(request.getMethod(), Method.DEPRECATED_GET_OR_POST);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("POST");
         verify(mMockConnection).setDoOutput(true);
     }
@@ -99,7 +99,7 @@ public class HurlStackTest
         TestRequest.Get request = new TestRequest.Get();
         assertEquals(request.getMethod(), Method.GET);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("GET");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -110,7 +110,7 @@ public class HurlStackTest
         TestRequest.Post request = new TestRequest.Post();
         assertEquals(request.getMethod(), Method.POST);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("POST");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -121,7 +121,7 @@ public class HurlStackTest
         TestRequest.PostWithBody request = new TestRequest.PostWithBody();
         assertEquals(request.getMethod(), Method.POST);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("POST");
         verify(mMockConnection).setDoOutput(true);
     }
@@ -132,7 +132,7 @@ public class HurlStackTest
         TestRequest.Put request = new TestRequest.Put();
         assertEquals(request.getMethod(), Method.PUT);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("PUT");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -143,7 +143,7 @@ public class HurlStackTest
         TestRequest.PutWithBody request = new TestRequest.PutWithBody();
         assertEquals(request.getMethod(), Method.PUT);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("PUT");
         verify(mMockConnection).setDoOutput(true);
     }
@@ -154,7 +154,7 @@ public class HurlStackTest
         TestRequest.Delete request = new TestRequest.Delete();
         assertEquals(request.getMethod(), Method.DELETE);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("DELETE");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -165,7 +165,7 @@ public class HurlStackTest
         TestRequest.Head request = new TestRequest.Head();
         assertEquals(request.getMethod(), Method.HEAD);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("HEAD");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -176,7 +176,7 @@ public class HurlStackTest
         TestRequest.Options request = new TestRequest.Options();
         assertEquals(request.getMethod(), Method.OPTIONS);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("OPTIONS");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -187,7 +187,7 @@ public class HurlStackTest
         TestRequest.Trace request = new TestRequest.Trace();
         assertEquals(request.getMethod(), Method.TRACE);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("TRACE");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -198,7 +198,7 @@ public class HurlStackTest
         TestRequest.Patch request = new TestRequest.Patch();
         assertEquals(request.getMethod(), Method.PATCH);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("PATCH");
         verify(mMockConnection, never()).setDoOutput(true);
     }
@@ -209,7 +209,7 @@ public class HurlStackTest
         TestRequest.PatchWithBody request = new TestRequest.PatchWithBody();
         assertEquals(request.getMethod(), Method.PATCH);
 
-        HttpUrlConnectionStack.setConnectionParametersForRequest(mMockConnection, request);
+        ConnHttpStack.setConnectionParametersForRequest(mMockConnection, request);
         verify(mMockConnection).setRequestMethod("PATCH");
         verify(mMockConnection).setDoOutput(true);
     }
@@ -220,7 +220,7 @@ public class HurlStackTest
         when(mMockConnection.getResponseCode()).thenThrow(new SocketTimeoutException());
         try
         {
-            mHurlStack.executeRequest(
+            mConnHttpStack.executeRequest(
                     new TestRequest.Get(), Collections.<String, String>emptyMap());
             fail("Should have thrown exception");
         }
@@ -236,7 +236,7 @@ public class HurlStackTest
         when(mMockConnection.getResponseCode()).thenReturn(-1);
         try
         {
-            mHurlStack.executeRequest(
+            mConnHttpStack.executeRequest(
                     new TestRequest.Get(), Collections.<String, String>emptyMap());
             fail("Should have thrown exception");
         }
@@ -250,7 +250,7 @@ public class HurlStackTest
     public void executeRequestClosesConnection_noResponseBody() throws Exception
     {
         when(mMockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NO_CONTENT);
-        mHurlStack.executeRequest(new TestRequest.Get(), Collections.<String, String>emptyMap());
+        mConnHttpStack.executeRequest(new TestRequest.Get(), Collections.<String, String>emptyMap());
         verify(mMockConnection).disconnect();
     }
 
@@ -261,7 +261,7 @@ public class HurlStackTest
         when(mMockConnection.getInputStream())
                 .thenReturn(new ByteArrayInputStream("hello".getBytes(StandardCharsets.UTF_8)));
         HttpResponse response =
-                mHurlStack.executeRequest(
+                mConnHttpStack.executeRequest(
                         new TestRequest.Get(), Collections.<String, String>emptyMap());
         // Shouldn't be disconnected until the stream is consumed.
         verify(mMockConnection, never()).disconnect();
@@ -279,7 +279,7 @@ public class HurlStackTest
         values.add("ValueB_1");
         values.add("ValueB_2");
         headers.put("HeaderB", values);
-        List<Header> result = HttpUrlConnectionStack.convertHeaders(headers);
+        List<Header> result = ConnHttpStack.convertHeaders(headers);
         List<Header> expected = new ArrayList<>();
         expected.add(new Header("HeaderA", "ValueA"));
         expected.add(new Header("HeaderB", "ValueB_1"));

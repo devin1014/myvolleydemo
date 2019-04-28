@@ -41,7 +41,7 @@ public interface HttpStack
      * @throws IOException            if another I/O error occurs during the request
      * @throws AuthFailureError       if an authentication failure occurs during the request
      */
-    HttpResponse executeRequest(
-            Request<?> request, Map<String, String> additionalHeaders)
+    HttpResponse executeRequest(Request<?> request,
+                                Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError;
 }

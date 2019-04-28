@@ -265,7 +265,7 @@ public class RequestQueue
      *
      * @param filter The filtering function to use
      */
-    public void cancelAll(RequestFilter filter)
+     void cancelAll(RequestFilter filter)
     {
         synchronized (mCurrentRequests)
         {
@@ -283,7 +283,7 @@ public class RequestQueue
      * Cancels all requests in this queue with the given tag. Tag must be non-null and equality is
      * by identity.
      */
-    public void cancelAll(final Object tag)
+     void cancelAll(final Object tag)
     {
         if (tag == null)
         {
@@ -306,7 +306,7 @@ public class RequestQueue
      * @param request The request to service
      * @return The passed-in request
      */
-    public <T> Request<T> add(Request<T> request)
+     <T> Request<T> add(Request<T> request)
     {
         // Tag the request as belonging to this queue and add it to the set of current requests.
         request.setRequestQueue(this);
@@ -363,7 +363,7 @@ public class RequestQueue
     /**
      * Add a listener for request life cycle events.
      */
-    public void addRequestEventListener(RequestEventListener listener)
+    void addRequestEventListener(RequestEventListener listener)
     {
         synchronized (mEventListeners)
         {
@@ -374,7 +374,7 @@ public class RequestQueue
     /**
      * Remove a listener for request life cycle events.
      */
-    public void removeRequestEventListener(RequestEventListener listener)
+    void removeRequestEventListener(RequestEventListener listener)
     {
         synchronized (mEventListeners)
         {

@@ -39,7 +39,7 @@ import javax.net.ssl.SSLSocketFactory;
 /**
  * A {@link HttpStack} based on {@link HttpURLConnection}.
  */
-public class HttpUrlConnectionStack implements HttpStack
+public class ConnHttpStack implements HttpStack
 {
 
     private static final int HTTP_CONTINUE = 100;
@@ -59,31 +59,33 @@ public class HttpUrlConnectionStack implements HttpStack
     private final UrlRewriter mUrlRewriter;
     private final SSLSocketFactory mSslSocketFactory;
 
-    public HttpUrlConnectionStack()
+    public ConnHttpStack()
     {
-        this(/* urlRewriter = */ null);
+        this(null);
     }
 
     /**
      * @param urlRewriter Rewriter to use for request URLs
      */
-    public HttpUrlConnectionStack(UrlRewriter urlRewriter)
+    public ConnHttpStack(UrlRewriter urlRewriter)
     {
-        this(urlRewriter, /* sslSocketFactory = */ null);
+        this(urlRewriter, null);
     }
 
     /**
      * @param urlRewriter      Rewriter to use for request URLs
      * @param sslSocketFactory SSL factory to use for HTTPS connections
      */
-    public HttpUrlConnectionStack(UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory)
+    public ConnHttpStack(UrlRewriter urlRewriter,
+                         SSLSocketFactory sslSocketFactory)
     {
         mUrlRewriter = urlRewriter;
         mSslSocketFactory = sslSocketFactory;
     }
 
     @Override
-    public HttpResponse executeRequest(Request<?> request, Map<String, String> additionalHeaders)
+    public HttpResponse executeRequest(Request<?> request,
+                                       Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError
     {
         String url = request.getUrl();
@@ -202,7 +204,7 @@ public class HttpUrlConnectionStack implements HttpStack
     /**
      * Initializes an {@link InputStream} from the given {@link HttpURLConnection}.
      *
-     * @param connection
+     * @param connection HttpURLConnection
      * @return an HttpEntity populated with data from <code>connection</code>.
      */
     private static InputStream inputStreamFromConnection(HttpURLConnection connection)
@@ -237,9 +239,9 @@ public class HttpUrlConnectionStack implements HttpStack
     /**
      * Opens an {@link HttpURLConnection} with parameters.
      *
-     * @param url
+     * @param url request url
      * @return an open connection
-     * @throws IOException
+     * @throws IOException exception
      */
     private HttpURLConnection openConnection(URL url, Request<?> request) throws IOException
     {
@@ -263,8 +265,10 @@ public class HttpUrlConnectionStack implements HttpStack
     // NOTE: Any request headers added here (via setRequestProperty or addRequestProperty) should be
     // checked against the existing properties in the connection and not overridden if already set.
     @SuppressWarnings("deprecation")
-    /* package */ static void setConnectionParametersForRequest(
-            HttpURLConnection connection, Request<?> request) throws IOException, AuthFailureError
+    /* package */
+    static void setConnectionParametersForRequest(HttpURLConnection connection,
+                                                  Request<?> request)
+            throws IOException, AuthFailureError
     {
         switch (request.getMethod())
         {
@@ -313,7 +317,8 @@ public class HttpUrlConnectionStack implements HttpStack
         }
     }
 
-    private static void addBodyIfExists(HttpURLConnection connection, Request<?> request)
+    private static void addBodyIfExists(HttpURLConnection connection,
+                                        Request<?> request)
             throws IOException, AuthFailureError
     {
         byte[] body = request.getBody();
@@ -323,7 +328,9 @@ public class HttpUrlConnectionStack implements HttpStack
         }
     }
 
-    private static void addBody(HttpURLConnection connection, Request<?> request, byte[] body)
+    private static void addBody(HttpURLConnection connection,
+                                Request<?> request,
+                                byte[] body)
             throws IOException
     {
         // Prepare output. There is no need to set Content-Length explicitly,
@@ -333,8 +340,7 @@ public class HttpUrlConnectionStack implements HttpStack
         // Set the content-type unless it was already set (by Request#getHeaders).
         if (!connection.getRequestProperties().containsKey(HttpHeaderParser.HEADER_CONTENT_TYPE))
         {
-            connection.setRequestProperty(
-                    HttpHeaderParser.HEADER_CONTENT_TYPE, request.getBodyContentType());
+            connection.setRequestProperty(HttpHeaderParser.HEADER_CONTENT_TYPE, request.getBodyContentType());
         }
         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
         out.write(body);

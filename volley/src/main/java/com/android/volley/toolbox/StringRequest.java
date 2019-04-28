@@ -19,12 +19,12 @@ package com.android.volley.toolbox;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.Nullable;
 
-import com.android.volley.network.HttpHeaderParser;
-import com.android.volley.network.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.NetworkResponse;
 
 import java.io.UnsupportedEncodingException;
 
@@ -34,7 +34,6 @@ import java.io.UnsupportedEncodingException;
  */
 public class StringRequest extends Request<String>
 {
-
     /**
      * Lock to guard mListener as it is cleared on cancel() and read on delivery.
      */
@@ -45,6 +44,20 @@ public class StringRequest extends Request<String>
     private Listener<String> mListener;
 
     /**
+     * Creates a new GET request.
+     *
+     * @param url           URL to fetch the string at
+     * @param listener      Listener to receive the String response
+     * @param errorListener Error listener, or null to ignore errors
+     */
+    public StringRequest(String url,
+                         @Nullable Listener<String> listener,
+                         @Nullable ErrorListener errorListener)
+    {
+        this(Method.GET, url, listener, errorListener);
+    }
+
+    /**
      * Creates a new request with the given method.
      *
      * @param method        the request {@link Method} to use
@@ -52,27 +65,13 @@ public class StringRequest extends Request<String>
      * @param listener      Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
      */
-    public StringRequest(
-            int method,
-            String url,
-            Listener<String> listener,
-            @Nullable ErrorListener errorListener)
+    public StringRequest(int method,
+                         String url,
+                         @Nullable Listener<String> listener,
+                         @Nullable ErrorListener errorListener)
     {
         super(method, url, errorListener);
         mListener = listener;
-    }
-
-    /**
-     * Creates a new GET request.
-     *
-     * @param url           URL to fetch the string at
-     * @param listener      Listener to receive the String response
-     * @param errorListener Error listener, or null to ignore errors
-     */
-    public StringRequest(
-            String url, Listener<String> listener, @Nullable ErrorListener errorListener)
-    {
-        this(Method.GET, url, listener, errorListener);
     }
 
     @Override
@@ -103,18 +102,18 @@ public class StringRequest extends Request<String>
     @SuppressWarnings("DefaultCharset")
     protected Response<String> parseNetworkResponse(NetworkResponse response)
     {
-        String parsed;
+        String result;
         try
         {
-            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+            result = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
         }
         catch (UnsupportedEncodingException e)
         {
             // Since minSdkVersion = 8, we can't call
             // new String(response.data, Charset.defaultCharset())
             // So suppress the warning instead.
-            parsed = new String(response.data);
+            result = new String(response.data);
         }
-        return Response.success(parsed, HttpHeaderParser.parseCacheHeaders(response));
+        return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
     }
 }

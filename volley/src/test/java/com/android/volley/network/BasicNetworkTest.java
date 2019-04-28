@@ -370,7 +370,6 @@ public class BasicNetworkTest
     {
         return new Request<String>(Request.Method.GET, "http://foo", null)
         {
-
             @Override
             protected Response<String> parseNetworkResponse(NetworkResponse response)
             {

@@ -15,8 +15,6 @@
  */
 package com.android.volley.network;
 
-import com.android.volley.network.Header;
-
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
