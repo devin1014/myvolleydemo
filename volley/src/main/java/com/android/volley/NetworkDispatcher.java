@@ -70,11 +70,10 @@ public class NetworkDispatcher extends Thread
      * @param cache    Cache interface to use for writing responses to cache
      * @param delivery Delivery interface to use for posting responses
      */
-    public NetworkDispatcher(
-            BlockingQueue<Request<?>> queue,
-            Network network,
-            Cache cache,
-            ResponseDelivery delivery)
+    public NetworkDispatcher(BlockingQueue<Request<?>> queue,
+                             Network network,
+                             Cache cache,
+                             ResponseDelivery delivery)
     {
         mQueue = queue;
         mNetwork = network;

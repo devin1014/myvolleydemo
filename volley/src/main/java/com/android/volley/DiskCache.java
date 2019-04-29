@@ -21,7 +21,7 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.android.volley.network.Header;
-import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.Headers;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -496,14 +496,13 @@ public class DiskCache implements Cache
          */
         final List<Header> allResponseHeaders;
 
-        private CacheHeader(
-                String key,
-                String etag,
-                long serverDate,
-                long lastModified,
-                long ttl,
-                long softTtl,
-                List<Header> allResponseHeaders)
+        private CacheHeader(String key,
+                            String etag,
+                            long serverDate,
+                            long lastModified,
+                            long ttl,
+                            long softTtl,
+                            List<Header> allResponseHeaders)
         {
             this.key = key;
             this.etag = "".equals(etag) ? null : etag;
@@ -522,14 +521,7 @@ public class DiskCache implements Cache
          */
         CacheHeader(String key, Entry entry)
         {
-            this(
-                    key,
-                    entry.etag,
-                    entry.serverDate,
-                    entry.lastModified,
-                    entry.ttl,
-                    entry.softTtl,
-                    getAllResponseHeaders(entry));
+            this(key, entry.etag, entry.serverDate, entry.lastModified, entry.ttl, entry.softTtl, getAllResponseHeaders(entry));
         }
 
         private static List<Header> getAllResponseHeaders(Entry entry)
@@ -541,7 +533,7 @@ public class DiskCache implements Cache
             }
 
             // Legacy fallback - copy headers from the map.
-            return HttpHeaderParser.toAllHeaderList(entry.responseHeaders);
+            return Headers.toAllHeaderList(entry.responseHeaders);
         }
 
         /**
@@ -581,7 +573,7 @@ public class DiskCache implements Cache
             e.lastModified = lastModified;
             e.ttl = ttl;
             e.softTtl = softTtl;
-            e.responseHeaders = HttpHeaderParser.toHeaderMap(allResponseHeaders);
+            e.responseHeaders = Headers.toHeaderMap(allResponseHeaders);
             e.allResponseHeaders = Collections.unmodifiableList(allResponseHeaders);
             return e;
         }

@@ -16,14 +16,14 @@
 
 package com.android.volley.network;
 
+import android.support.annotation.NonNull;
+
 import com.android.volley.Request;
 
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Data and headers returned from {@link Network#performRequest(Request)}.
@@ -125,14 +125,13 @@ public class NetworkResponse
      * constructor may be removed in a future release of Volley.
      */
     @Deprecated
-    public NetworkResponse(
-            int statusCode,
-            byte[] data,
-            Map<String, String> headers,
-            boolean notModified,
-            long networkTimeMs)
+    public NetworkResponse(int statusCode,
+                           byte[] data,
+                           Map<String, String> headers,
+                           boolean notModified,
+                           long networkTimeMs)
     {
-        this(statusCode, data, headers, toAllHeaderList(headers), notModified, networkTimeMs);
+        this(statusCode, data, headers, Headers.toAllHeaderList(headers), notModified, networkTimeMs);
     }
 
     /**
@@ -144,23 +143,21 @@ public class NetworkResponse
      * @param networkTimeMs Round-trip network time to receive network response
      * @param allHeaders    All headers returned with this response, or null for none
      */
-    public NetworkResponse(
-            int statusCode,
-            byte[] data,
-            boolean notModified,
-            long networkTimeMs,
-            List<Header> allHeaders)
+    public NetworkResponse(int statusCode,
+                           byte[] data,
+                           boolean notModified,
+                           long networkTimeMs,
+                           List<Header> allHeaders)
     {
-        this(statusCode, data, toHeaderMap(allHeaders), allHeaders, notModified, networkTimeMs);
+        this(statusCode, data, Headers.toHeaderMap(allHeaders), allHeaders, notModified, networkTimeMs);
     }
 
-    private NetworkResponse(
-            int statusCode,
-            byte[] data,
-            Map<String, String> headers,
-            List<Header> allHeaders,
-            boolean notModified,
-            long networkTimeMs)
+    private NetworkResponse(int statusCode,
+                            byte[] data,
+                            Map<String, String> headers,
+                            List<Header> allHeaders,
+                            boolean notModified,
+                            long networkTimeMs)
     {
         this.statusCode = statusCode;
         this.data = data;
@@ -170,40 +167,14 @@ public class NetworkResponse
         this.networkTimeMs = networkTimeMs;
     }
 
-    private static Map<String, String> toHeaderMap(List<Header> allHeaders)
+    @NonNull
+    @Override
+    public String toString()
     {
-        if (allHeaders == null)
-        {
-            return null;
-        }
-        if (allHeaders.isEmpty())
-        {
-            return Collections.emptyMap();
-        }
-        Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        // Later elements in the list take precedence.
-        for (Header header : allHeaders)
-        {
-            headers.put(header.getName(), header.getValue());
-        }
-        return headers;
-    }
-
-    private static List<Header> toAllHeaderList(Map<String, String> headers)
-    {
-        if (headers == null)
-        {
-            return null;
-        }
-        if (headers.isEmpty())
-        {
-            return Collections.emptyList();
-        }
-        List<Header> allHeaders = new ArrayList<>(headers.size());
-        for (Map.Entry<String, String> header : headers.entrySet())
-        {
-            allHeaders.add(new Header(header.getKey(), header.getValue()));
-        }
-        return allHeaders;
+        return "{"
+                + "code=" + statusCode
+                + ",contentLength=" + data.length
+                + ",headers=" + (allHeaders != null ? allHeaders.toString() : "null")
+                + "}";
     }
 }

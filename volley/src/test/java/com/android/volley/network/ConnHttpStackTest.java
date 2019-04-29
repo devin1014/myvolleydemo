@@ -49,7 +49,6 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class ConnHttpStackTest
 {
-
     @Mock
     private HttpURLConnection mMockConnection;
     private ConnHttpStack mConnHttpStack;
@@ -60,15 +59,14 @@ public class ConnHttpStackTest
         MockitoAnnotations.initMocks(this);
         when(mMockConnection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
 
-        mConnHttpStack =
-                new ConnHttpStack()
-                {
-                    @Override
-                    protected HttpURLConnection createConnection(URL url)
-                    {
-                        return mMockConnection;
-                    }
-                };
+        mConnHttpStack = new ConnHttpStack()
+        {
+            @Override
+            protected HttpURLConnection createConnection(URL url)
+            {
+                return mMockConnection;
+            }
+        };
     }
 
     @Test

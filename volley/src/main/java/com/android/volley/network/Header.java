@@ -69,6 +69,7 @@ public final class Header
     @Override
     public String toString()
     {
-        return "Header[name=" + mName + ",value=" + mValue + "]";
+        //return "Header[name=" + mName + ",value=" + mValue + "]";
+        return "{" + mName + "=" + mValue + "}";
     }
 }

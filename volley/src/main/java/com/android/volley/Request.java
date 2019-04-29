@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.android.volley.CachePolicy.DefaultCachePolicy;
 import com.android.volley.RequestQueue.RequestEvent;
 import com.android.volley.RetryPolicy.DefaultRetryPolicy;
 import com.android.volley.VolleyLog.MarkerLog;
@@ -127,11 +128,11 @@ public abstract class Request<T> implements Comparable<Request<T>>
      */
     private RequestQueue mRequestQueue;
 
-    /**
-     * Whether or not responses to this request should be cached.
-     */
-    // TODO(#190): Turn this off by default for anything other than GET requests.
-    private boolean mShouldCache = true;
+    //    /**
+    //     * Whether or not responses to this request should be cached.
+    //     */
+    //    // TODO(#190): Turn this off by default for anything other than GET requests.
+    //    private boolean mShouldCache = true;
 
     /**
      * Whether or not this request has been canceled.
@@ -154,6 +155,11 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * The retry policy for this request.
      */
     private RetryPolicy mRetryPolicy;
+
+    /**
+     * The cache policy for this request.
+     */
+    private CachePolicy mCachePolicy;
 
     /**
      * When a request can be retrieved from cache but must be refreshed from the network, the cache
@@ -201,6 +207,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
         mUrl = url;
         mErrorListener = listener;
         setRetryPolicy(new DefaultRetryPolicy());
+        //setCachePolicy(new DefaultCachePolicy());
 
         mDefaultTrafficStatsTag = findDefaultTrafficStatsTag(url);
     }
@@ -284,6 +291,22 @@ public abstract class Request<T> implements Comparable<Request<T>>
     {
         mRetryPolicy = retryPolicy;
         return this;
+    }
+
+    /**
+     * Sets the cache policy for this request.
+     *
+     * @return This Request object to allow for chaining.
+     */
+    public Request<?> setCachePolicy(CachePolicy cachePolicy)
+    {
+        mCachePolicy = cachePolicy;
+        return this;
+    }
+
+    public CachePolicy getCachePolicy()
+    {
+        return mCachePolicy;
     }
 
     /**
@@ -628,23 +651,23 @@ public abstract class Request<T> implements Comparable<Request<T>>
         }
     }
 
-    /**
-     * Set whether or not responses to this request should be cached.
-     *
-     * @return This Request object to allow for chaining.
-     */
-    public final Request<?> setShouldCache(boolean shouldCache)
-    {
-        mShouldCache = shouldCache;
-        return this;
-    }
+    //    /**
+    //     * Set whether or not responses to this request should be cached.
+    //     *
+    //     * @return This Request object to allow for chaining.
+    //     */
+    //    public final Request<?> setShouldCache(boolean shouldCache)
+    //    {
+    //        mShouldCache = shouldCache;
+    //        return this;
+    //    }
 
     /**
      * Returns true if responses to this request should be cached.
      */
     public final boolean shouldCache()
     {
-        return mShouldCache;
+        return mCachePolicy == null || mCachePolicy.shouldCache(this);
     }
 
     /**

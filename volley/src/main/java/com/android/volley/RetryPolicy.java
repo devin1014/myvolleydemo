@@ -89,7 +89,7 @@ public interface RetryPolicy
         /**
          * The default socket timeout in milliseconds
          */
-        public static final int DEFAULT_TIMEOUT_MS = 2500;
+        public static final int DEFAULT_TIMEOUT_MS = 15000;
 
         /**
          * The default number of retries

@@ -64,7 +64,7 @@ public class RequestTest
         assertNotNull(Request.class.getDeclaredMethod("getParamsEncoding"));
         assertNotNull(Request.class.getMethod("getBodyContentType"));
         assertNotNull(Request.class.getMethod("getBody"));
-        assertNotNull(Request.class.getMethod("setShouldCache", boolean.class));
+        //assertNotNull(Request.class.getMethod("setShouldCache", boolean.class));
         assertNotNull(Request.class.getMethod("shouldCache"));
         assertNotNull(Request.class.getMethod("getPriority"));
         assertNotNull(Request.class.getMethod("getTimeoutMs"));

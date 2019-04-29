@@ -23,7 +23,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.Headers;
 import com.android.volley.network.NetworkResponse;
 
 import java.io.UnsupportedEncodingException;
@@ -105,7 +105,7 @@ public class StringRequest extends Request<String>
         String result;
         try
         {
-            result = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+            result = new String(response.data, Headers.parseCharset(response.headers));
         }
         catch (UnsupportedEncodingException e)
         {
@@ -114,6 +114,6 @@ public class StringRequest extends Request<String>
             // So suppress the warning instead.
             result = new String(response.data);
         }
-        return Response.success(result, HttpHeaderParser.parseCacheHeaders(response));
+        return Response.success(result, Headers.parseCacheHeaders(response));
     }
 }

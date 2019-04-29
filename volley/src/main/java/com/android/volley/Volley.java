@@ -21,8 +21,8 @@ import android.content.Context;
 import com.android.volley.RequestQueue.RequestEventListener;
 import com.android.volley.RequestQueue.RequestFilter;
 import com.android.volley.network.BasicNetwork;
-import com.android.volley.network.HttpStack;
 import com.android.volley.network.ConnHttpStack;
+import com.android.volley.network.HttpStack;
 import com.android.volley.network.Network;
 
 import java.io.File;
@@ -69,6 +69,7 @@ public class Volley
         RequestQueue queue = new RequestQueue(new DiskCache(cacheDir), network);
         queue.start();
         mRequestQueue = queue;
+        setCachePolicy(builder.cachePolicy);
     }
 
     private Volley setRetainInstance()
@@ -93,6 +94,8 @@ public class Volley
 
     public <T> Request<T> add(Request<T> request)
     {
+        request.setCachePolicy(mCachePolicy);
+
         return mRequestQueue.add(request);
     }
 
@@ -106,6 +109,13 @@ public class Volley
         mRequestQueue.cancelAll(tag);
     }
 
+    private CachePolicy mCachePolicy;
+
+    public void setCachePolicy(CachePolicy cachePolicy)
+    {
+        mCachePolicy = cachePolicy;
+    }
+
     // ---------------------------------------------------------------------------------------------------------
     // - Builder
     // ---------------------------------------------------------------------------------------------------------
@@ -115,6 +125,7 @@ public class Volley
         private HttpStack httpStack;
         private SSLSocketFactory sslSocketFactory;
         private Network network;
+        private CachePolicy cachePolicy;
 
         public Builder(Context context)
         {
@@ -136,6 +147,12 @@ public class Volley
         public Builder setNetwork(Network network)
         {
             this.network = network;
+            return this;
+        }
+
+        public Builder setCachePolicy(CachePolicy cachePolicy)
+        {
+            this.cachePolicy = cachePolicy;
             return this;
         }
 

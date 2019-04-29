@@ -18,12 +18,12 @@ package com.android.volley.toolbox;
 
 import android.support.annotation.Nullable;
 
-import com.android.volley.network.HttpHeaderParser;
-import com.android.volley.network.NetworkResponse;
-import com.android.volley.exception.ParseError;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.exception.ParseError;
+import com.android.volley.network.Headers;
+import com.android.volley.network.NetworkResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +36,6 @@ import java.io.UnsupportedEncodingException;
  */
 public class JsonArrayRequest extends JsonRequest<JSONArray>
 {
-
     /**
      * Creates a new request.
      *
@@ -44,8 +43,9 @@ public class JsonArrayRequest extends JsonRequest<JSONArray>
      * @param listener      Listener to receive the JSON response
      * @param errorListener Error listener, or null to ignore errors.
      */
-    public JsonArrayRequest(
-            String url, Listener<JSONArray> listener, @Nullable ErrorListener errorListener)
+    public JsonArrayRequest(String url,
+                            Listener<JSONArray> listener,
+                            @Nullable ErrorListener errorListener)
     {
         super(Method.GET, url, null, listener, errorListener);
     }
@@ -60,19 +60,13 @@ public class JsonArrayRequest extends JsonRequest<JSONArray>
      * @param listener      Listener to receive the JSON response
      * @param errorListener Error listener, or null to ignore errors.
      */
-    public JsonArrayRequest(
-            int method,
-            String url,
-            @Nullable JSONArray jsonRequest,
-            Listener<JSONArray> listener,
-            @Nullable ErrorListener errorListener)
+    public JsonArrayRequest(int method,
+                            String url,
+                            @Nullable JSONArray jsonRequest,
+                            Listener<JSONArray> listener,
+                            @Nullable ErrorListener errorListener)
     {
-        super(
-                method,
-                url,
-                (jsonRequest == null) ? null : jsonRequest.toString(),
-                listener,
-                errorListener);
+        super(method, url, (jsonRequest == null) ? null : jsonRequest.toString(), listener, errorListener);
     }
 
     @Override
@@ -80,12 +74,9 @@ public class JsonArrayRequest extends JsonRequest<JSONArray>
     {
         try
         {
-            String jsonString =
-                    new String(
-                            response.data,
-                            HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
+            String jsonString = new String(response.data, Headers.parseCharset(response.headers, PROTOCOL_CHARSET));
             return Response.success(
-                    new JSONArray(jsonString), HttpHeaderParser.parseCacheHeaders(response));
+                    new JSONArray(jsonString), Headers.parseCacheHeaders(response));
         }
         catch (UnsupportedEncodingException e)
         {

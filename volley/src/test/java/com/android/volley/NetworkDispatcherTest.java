@@ -145,7 +145,7 @@ public class NetworkDispatcherTest
     @Test
     public void shouldCacheFalse() throws Exception
     {
-        mRequest.setShouldCache(false);
+        //mRequest.setShouldCache(false);
         mDispatcher.processRequest(mRequest);
         verify(mCache, never()).put(anyString(), any(Cache.Entry.class));
     }
@@ -155,7 +155,7 @@ public class NetworkDispatcherTest
     {
         when(mNetwork.performRequest(any(Request.class)))
                 .thenReturn(new NetworkResponse(CANNED_DATA));
-        mRequest.setShouldCache(true);
+        //mRequest.setShouldCache(true);
         mDispatcher.processRequest(mRequest);
         ArgumentCaptor<Cache.Entry> entry = ArgumentCaptor.forClass(Cache.Entry.class);
         verify(mCache).put(eq(mRequest.getCacheKey()), entry.capture());

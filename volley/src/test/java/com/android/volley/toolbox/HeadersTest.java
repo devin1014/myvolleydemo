@@ -18,7 +18,7 @@ package com.android.volley.toolbox;
 
 import com.android.volley.Cache;
 import com.android.volley.network.Header;
-import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.Headers;
 import com.android.volley.network.NetworkResponse;
 
 import org.junit.Before;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-public class HttpHeaderParserTest
+public class HeadersTest
 {
 
     private static long ONE_MINUTE_MILLIS = 1000L * 60;
@@ -62,7 +62,7 @@ public class HttpHeaderParserTest
     @Test
     public void parseCacheHeaders_noHeaders()
     {
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertNull(entry.etag);
@@ -77,7 +77,7 @@ public class HttpHeaderParserTest
     {
         headers.put("MyCustomHeader", "42");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertNotNull(entry.responseHeaders);
@@ -90,7 +90,7 @@ public class HttpHeaderParserTest
     {
         headers.put("ETag", "Yow!");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertEquals("Yow!", entry.etag);
@@ -104,7 +104,7 @@ public class HttpHeaderParserTest
         headers.put("Last-Modified", rfc1123Date(now - ONE_DAY_MILLIS));
         headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertNull(entry.etag);
@@ -121,7 +121,7 @@ public class HttpHeaderParserTest
         headers.put("Date", rfc1123Date(now));
         headers.put("Expires", rfc1123Date(now - ONE_HOUR_MILLIS));
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertNull(entry.etag);
@@ -140,7 +140,7 @@ public class HttpHeaderParserTest
         // TTL four hours in the future, so should be three hours from now
         headers.put("Expires", rfc1123Date(now + 4 * ONE_HOUR_MILLIS));
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertEqualsWithin(now + 3 * ONE_HOUR_MILLIS, entry.ttl, ONE_MINUTE_MILLIS);
         assertEquals(entry.softTtl, entry.ttl);
@@ -154,7 +154,7 @@ public class HttpHeaderParserTest
         headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
         headers.put("Cache-Control", "public, max-age=86400");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertNull(entry.etag);
@@ -174,7 +174,7 @@ public class HttpHeaderParserTest
         // continue to be served stale for up to additional 7 days
         headers.put("Cache-Control", "max-age=86400, stale-while-revalidate=604800");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertNull(entry.etag);
@@ -190,7 +190,7 @@ public class HttpHeaderParserTest
         headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
         headers.put("Cache-Control", "no-cache");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNull(entry);
     }
@@ -203,7 +203,7 @@ public class HttpHeaderParserTest
         headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
         headers.put("Cache-Control", "must-revalidate");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
         assertNotNull(entry);
         assertNull(entry.etag);
         assertEqualsWithin(now, entry.ttl, ONE_MINUTE_MILLIS);
@@ -218,7 +218,7 @@ public class HttpHeaderParserTest
         headers.put("Expires", rfc1123Date(now + ONE_HOUR_MILLIS));
         headers.put("Cache-Control", "must-revalidate, max-age=3600");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
         assertNotNull(entry);
         assertNull(entry.etag);
         assertEqualsWithin(now + ONE_HOUR_MILLIS, entry.ttl, ONE_MINUTE_MILLIS);
@@ -239,7 +239,7 @@ public class HttpHeaderParserTest
         headers.put(
                 "Cache-Control", "must-revalidate, max-age=86400, stale-while-revalidate=604800");
 
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
         assertNotNull(entry);
         assertNull(entry.etag);
         assertEqualsWithin(now + ONE_DAY_MILLIS, entry.softTtl, ONE_MINUTE_MILLIS);
@@ -265,43 +265,43 @@ public class HttpHeaderParserTest
     {
         // Like the ones we usually see
         headers.put("Content-Type", "text/plain; charset=utf-8");
-        assertEquals("utf-8", HttpHeaderParser.parseCharset(headers));
+        assertEquals("utf-8", Headers.parseCharset(headers));
 
         // Charset specified, ignore default charset
         headers.put("Content-Type", "text/plain; charset=utf-8");
-        assertEquals("utf-8", HttpHeaderParser.parseCharset(headers, "ISO-8859-1"));
+        assertEquals("utf-8", Headers.parseCharset(headers, "ISO-8859-1"));
 
         // Extra whitespace
         headers.put("Content-Type", "text/plain;    charset=utf-8 ");
-        assertEquals("utf-8", HttpHeaderParser.parseCharset(headers));
+        assertEquals("utf-8", Headers.parseCharset(headers));
 
         // Extra parameters
         headers.put("Content-Type", "text/plain; charset=utf-8; frozzle=bar");
-        assertEquals("utf-8", HttpHeaderParser.parseCharset(headers));
+        assertEquals("utf-8", Headers.parseCharset(headers));
 
         // No Content-Type header
         headers.clear();
-        assertEquals("ISO-8859-1", HttpHeaderParser.parseCharset(headers));
+        assertEquals("ISO-8859-1", Headers.parseCharset(headers));
 
         // No Content-Type header, use default charset
         headers.clear();
-        assertEquals("utf-8", HttpHeaderParser.parseCharset(headers, "utf-8"));
+        assertEquals("utf-8", Headers.parseCharset(headers, "utf-8"));
 
         // Empty value
         headers.put("Content-Type", "text/plain; charset=");
-        assertEquals("ISO-8859-1", HttpHeaderParser.parseCharset(headers));
+        assertEquals("ISO-8859-1", Headers.parseCharset(headers));
 
         // None specified
         headers.put("Content-Type", "text/plain");
-        assertEquals("ISO-8859-1", HttpHeaderParser.parseCharset(headers));
+        assertEquals("ISO-8859-1", Headers.parseCharset(headers));
 
         // None charset specified, use default charset
         headers.put("Content-Type", "application/json");
-        assertEquals("utf-8", HttpHeaderParser.parseCharset(headers, "utf-8"));
+        assertEquals("utf-8", Headers.parseCharset(headers, "utf-8"));
 
         // None specified, extra semicolon
         headers.put("Content-Type", "text/plain;");
-        assertEquals("ISO-8859-1", HttpHeaderParser.parseCharset(headers));
+        assertEquals("ISO-8859-1", Headers.parseCharset(headers));
     }
 
     @Test
@@ -317,13 +317,13 @@ public class HttpHeaderParserTest
         headers.add(new Header("content-type", "text/plain"));
 
         NetworkResponse response = new NetworkResponse(0, null, false, 0, headers);
-        Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        Cache.Entry entry = Headers.parseCacheHeaders(response);
 
         assertNotNull(entry);
         assertEquals("Yow!", entry.etag);
         assertEqualsWithin(now + ONE_DAY_MILLIS, entry.ttl, ONE_MINUTE_MILLIS);
         assertEquals(entry.softTtl, entry.ttl);
         assertEquals(
-                "ISO-8859-1", HttpHeaderParser.parseCharset(HttpHeaderParser.toHeaderMap(headers)));
+                "ISO-8859-1", Headers.parseCharset(Headers.toHeaderMap(headers)));
     }
 }

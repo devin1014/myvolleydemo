@@ -18,12 +18,12 @@ package com.android.volley.toolbox;
 
 import android.support.annotation.Nullable;
 
-import com.android.volley.network.HttpHeaderParser;
-import com.android.volley.network.NetworkResponse;
-import com.android.volley.exception.ParseError;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.exception.ParseError;
+import com.android.volley.network.Headers;
+import com.android.volley.network.NetworkResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +37,6 @@ import java.io.UnsupportedEncodingException;
  */
 public class JsonObjectRequest extends JsonRequest<JSONObject>
 {
-
     /**
      * Creates a new request.
      *
@@ -48,19 +47,13 @@ public class JsonObjectRequest extends JsonRequest<JSONObject>
      * @param listener      Listener to receive the JSON response
      * @param errorListener Error listener, or null to ignore errors.
      */
-    public JsonObjectRequest(
-            int method,
-            String url,
-            @Nullable JSONObject jsonRequest,
-            Listener<JSONObject> listener,
-            @Nullable ErrorListener errorListener)
+    public JsonObjectRequest(int method,
+                             String url,
+                             @Nullable JSONObject jsonRequest,
+                             Listener<JSONObject> listener,
+                             @Nullable ErrorListener errorListener)
     {
-        super(
-                method,
-                url,
-                (jsonRequest == null) ? null : jsonRequest.toString(),
-                listener,
-                errorListener);
+        super(method, url, (jsonRequest == null) ? null : jsonRequest.toString(), listener, errorListener);
     }
 
     /**
@@ -69,18 +62,12 @@ public class JsonObjectRequest extends JsonRequest<JSONObject>
      *
      * @see #JsonObjectRequest(int, String, JSONObject, Listener, ErrorListener)
      */
-    public JsonObjectRequest(
-            String url,
-            @Nullable JSONObject jsonRequest,
-            Listener<JSONObject> listener,
-            @Nullable ErrorListener errorListener)
+    public JsonObjectRequest(String url,
+                             @Nullable JSONObject jsonRequest,
+                             Listener<JSONObject> listener,
+                             @Nullable ErrorListener errorListener)
     {
-        this(
-                jsonRequest == null ? Method.GET : Method.POST,
-                url,
-                jsonRequest,
-                listener,
-                errorListener);
+        this(jsonRequest == null ? Method.GET : Method.POST, url, jsonRequest, listener, errorListener);
     }
 
     @Override
@@ -88,12 +75,9 @@ public class JsonObjectRequest extends JsonRequest<JSONObject>
     {
         try
         {
-            String jsonString =
-                    new String(
-                            response.data,
-                            HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
+            String jsonString = new String(response.data, Headers.parseCharset(response.headers, PROTOCOL_CHARSET));
             return Response.success(
-                    new JSONObject(jsonString), HttpHeaderParser.parseCacheHeaders(response));
+                    new JSONObject(jsonString), Headers.parseCacheHeaders(response));
         }
         catch (UnsupportedEncodingException e)
         {

@@ -123,7 +123,7 @@ public interface Cache
         /**
          * True if the entry is expired.
          */
-        public boolean isExpired()
+        boolean isExpired()
         {
             return this.ttl < System.currentTimeMillis();
         }
@@ -131,7 +131,7 @@ public interface Cache
         /**
          * True if a refresh is needed from the original data source.
          */
-        public boolean refreshNeeded()
+        boolean refreshNeeded()
         {
             return this.softTtl < System.currentTimeMillis();
         }

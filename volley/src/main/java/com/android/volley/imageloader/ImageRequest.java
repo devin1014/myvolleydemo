@@ -29,7 +29,7 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy.DefaultRetryPolicy;
 import com.android.volley.VolleyLog;
 import com.android.volley.exception.ParseError;
-import com.android.volley.network.HttpHeaderParser;
+import com.android.volley.network.Headers;
 import com.android.volley.network.NetworkResponse;
 
 
@@ -280,7 +280,7 @@ public class ImageRequest extends Request<Bitmap>
         }
         else
         {
-            return Response.success(bitmap, HttpHeaderParser.parseCacheHeaders(response));
+            return Response.success(bitmap, Headers.parseCacheHeaders(response));
         }
     }
 

@@ -338,9 +338,9 @@ public class ConnHttpStack implements HttpStack
         // output stream.
         connection.setDoOutput(true);
         // Set the content-type unless it was already set (by Request#getHeaders).
-        if (!connection.getRequestProperties().containsKey(HttpHeaderParser.HEADER_CONTENT_TYPE))
+        if (!connection.getRequestProperties().containsKey(Headers.HEADER_CONTENT_TYPE))
         {
-            connection.setRequestProperty(HttpHeaderParser.HEADER_CONTENT_TYPE, request.getBodyContentType());
+            connection.setRequestProperty(Headers.HEADER_CONTENT_TYPE, request.getBodyContentType());
         }
         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
         out.write(body);

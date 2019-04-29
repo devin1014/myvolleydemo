@@ -18,7 +18,6 @@ package com.android.volley.network;
 
 import android.os.SystemClock;
 
-import com.android.volley.Cache;
 import com.android.volley.Cache.Entry;
 import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
@@ -30,6 +29,10 @@ import com.android.volley.exception.NoConnectionError;
 import com.android.volley.exception.ServerError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
+import com.android.volley.network.Interceptors.CacheInterceptor;
+import com.android.volley.network.Interceptors.CacheInterceptorImp;
+import com.android.volley.network.Interceptors.HeaderInterceptor;
+import com.android.volley.network.Interceptors.HeaderInterceptorImp;
 import com.android.volley.toolbox.ByteArrayPool;
 import com.android.volley.toolbox.PoolingByteArrayOutputStream;
 
@@ -43,9 +46,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * A network performing Volley requests over an {@link HttpStack}.
@@ -60,7 +60,11 @@ public class BasicNetwork implements Network
 
     private final HttpStack mHttpStack;
 
-    protected final ByteArrayPool mPool;
+    private final HeaderInterceptor mHeaderInterceptor;
+
+    private final CacheInterceptor mCacheInterceptor;
+
+    private final ByteArrayPool mPool;
 
     /**
      * @param httpStack HTTP stack to be used
@@ -81,6 +85,8 @@ public class BasicNetwork implements Network
     {
         mHttpStack = httpStack;
         mPool = pool;
+        mHeaderInterceptor = new HeaderInterceptorImp();// FIXME: optimize interceptor
+        mCacheInterceptor = new CacheInterceptorImp();
     }
 
     @Override
@@ -95,10 +101,35 @@ public class BasicNetwork implements Network
             try
             {
                 // Gather headers.
-                Map<String, String> additionalRequestHeaders = getCacheHeaders(request.getCacheEntry());
-                httpResponse = mHttpStack.executeRequest(request, additionalRequestHeaders);
+                Map<String, String> additionalHeaders = new HashMap<>();
+                additionalHeaders = mHeaderInterceptor.interceptRequest(additionalHeaders, request);
+
+                if (DEBUG)
+                {
+                    VolleyLog.d("\nrequest:"
+                                    + "\n\tmethod=%s,"
+                                    + "\n\turl=%s,"
+                                    + "\n\theaders=%s"
+                                    + "\n\tadditionalHeaders=%s",
+                            request.getMethod(),
+                            request.getUrl(),
+                            request.getHeaders(),
+                            additionalHeaders);
+                }
+                httpResponse = mHttpStack.executeRequest(request, additionalHeaders);
                 int statusCode = httpResponse.getStatusCode();
-                responseHeaders = httpResponse.getHeaders();
+                responseHeaders = mHeaderInterceptor.interceptResponse(new ArrayList<Header>(), httpResponse, request);
+                responseHeaders = mCacheInterceptor.interceptResponse(responseHeaders, httpResponse, request);
+                if (DEBUG)
+                {
+                    VolleyLog.d("\nresponse:"
+                                    + "\n\tcode=%s,"
+                                    + "\n\tcontentLength=%s,"
+                                    + "\n\theaders=%s",
+                            statusCode,
+                            httpResponse.getContentLength(),
+                            responseHeaders);
+                }
                 // Handle cache validation.
                 if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) // 304
                 {
@@ -112,9 +143,8 @@ public class BasicNetwork implements Network
                                 responseHeaders);
                     }
                     // Combine cached and response headers so the response will be complete.
-                    List<Header> combinedHeaders = combineHeaders(responseHeaders, entry);
-                    return new NetworkResponse(
-                            HttpURLConnection.HTTP_NOT_MODIFIED,
+                    List<Header> combinedHeaders = Headers.combineHeaders(responseHeaders, entry);
+                    return new NetworkResponse(HttpURLConnection.HTTP_NOT_MODIFIED,
                             entry.data,
                             true,
                             SystemClock.elapsedRealtime() - requestStart,
@@ -259,38 +289,10 @@ public class BasicNetwork implements Network
         request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
     }
 
-    private Map<String, String> getCacheHeaders(Cache.Entry entry)
-    {
-        // If there's no cache entry, we're done.
-        if (entry == null)
-        {
-            return Collections.emptyMap();
-        }
-
-        Map<String, String> headers = new HashMap<>();
-
-        if (entry.etag != null)
-        {
-            headers.put("If-None-Match", entry.etag);
-        }
-
-        if (entry.lastModified > 0)
-        {
-            headers.put("If-Modified-Since", HttpHeaderParser.formatEpochAsRfc1123(entry.lastModified));
-        }
-
-        return headers;
-    }
-
-    protected void logError(String what, String url, long start)
-    {
-        long now = SystemClock.elapsedRealtime();
-        VolleyLog.v("HTTP ERROR(%s) %d ms to fetch %s", what, (now - start), url);
-    }
-
     /**
      * Reads the contents of an InputStream into a byte[].
      */
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private byte[] inputStreamToBytes(InputStream in,
                                       int contentLength) throws IOException, ServerError
     {
@@ -329,79 +331,5 @@ public class BasicNetwork implements Network
             mPool.returnBuf(buffer);
             bytes.close();
         }
-    }
-
-    /**
-     * Converts Headers[] to Map&lt;String, String&gt;.
-     *
-     * @deprecated Should never have been exposed in the API. This method may be removed in a future
-     * release of Volley.
-     */
-    @Deprecated
-    protected static Map<String, String> convertHeaders(Header[] headers)
-    {
-        Map<String, String> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        for (int i = 0; i < headers.length; i++)
-        {
-            result.put(headers[i].getName(), headers[i].getValue());
-        }
-        return result;
-    }
-
-    /**
-     * Combine cache headers with network response headers for an HTTP 304 response.
-     *
-     * <p>An HTTP 304 response does not have all header fields. We have to use the header fields
-     * from the cache entry plus the new ones from the response. See also:
-     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
-     *
-     * @param responseHeaders Headers from the network response.
-     * @param entry           The cached response.
-     * @return The combined list of headers.
-     */
-    private static List<Header> combineHeaders(List<Header> responseHeaders, Entry entry)
-    {
-        // First, create a case-insensitive set of header names from the network
-        // response.
-        Set<String> headerNamesFromNetworkResponse = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        if (!responseHeaders.isEmpty())
-        {
-            for (Header header : responseHeaders)
-            {
-                headerNamesFromNetworkResponse.add(header.getName());
-            }
-        }
-
-        // Second, add headers from the cache entry to the network response as long as
-        // they didn't appear in the network response, which should take precedence.
-        List<Header> combinedHeaders = new ArrayList<>(responseHeaders);
-        if (entry.allResponseHeaders != null)
-        {
-            if (!entry.allResponseHeaders.isEmpty())
-            {
-                for (Header header : entry.allResponseHeaders)
-                {
-                    if (!headerNamesFromNetworkResponse.contains(header.getName()))
-                    {
-                        combinedHeaders.add(header);
-                    }
-                }
-            }
-        }
-        else
-        {
-            // Legacy caches only have entry.responseHeaders.
-            if (!entry.responseHeaders.isEmpty())
-            {
-                for (Map.Entry<String, String> header : entry.responseHeaders.entrySet())
-                {
-                    if (!headerNamesFromNetworkResponse.contains(header.getKey()))
-                    {
-                        combinedHeaders.add(new Header(header.getKey(), header.getValue()));
-                    }
-                }
-            }
-        }
-        return combinedHeaders;
     }
 }
