@@ -87,20 +87,6 @@ public class DiskCache implements Cache
     private static final int CACHE_MAGIC = 0x20150306;
 
     /**
-     * Constructs an instance of the DiskBasedCache at the specified directory.
-     *
-     * @param rootDirectory       The root directory of the cache.
-     * @param maxCacheSizeInBytes The maximum size of the cache in bytes. Note that the cache may
-     *                            briefly exceed this size on disk when writing a new entry that pushes it over the limit
-     *                            until the ensuing pruning completes.
-     */
-    public DiskCache(File rootDirectory, int maxCacheSizeInBytes)
-    {
-        mRootDirectory = rootDirectory;
-        mMaxCacheSizeInBytes = maxCacheSizeInBytes;
-    }
-
-    /**
      * Constructs an instance of the DiskBasedCache at the specified directory using the default
      * maximum cache size of 5MB.
      *
@@ -109,6 +95,21 @@ public class DiskCache implements Cache
     public DiskCache(File rootDirectory)
     {
         this(rootDirectory, DEFAULT_DISK_USAGE_BYTES);
+    }
+
+    /**
+     * Constructs an instance of the DiskBasedCache at the specified directory.
+     *
+     * @param rootDirectory       The root directory of the cache.
+     * @param maxCacheSizeInBytes The maximum size of the cache in bytes. Note that the cache may
+     *                            briefly exceed this size on disk when writing a new entry that pushes it over the limit
+     *                            until the ensuing pruning completes.
+     */
+    public DiskCache(File rootDirectory,
+                     int maxCacheSizeInBytes)
+    {
+        mRootDirectory = rootDirectory;
+        mMaxCacheSizeInBytes = maxCacheSizeInBytes;
     }
 
     /**
@@ -122,6 +123,7 @@ public class DiskCache implements Cache
         {
             for (File file : files)
             {
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
             }
         }
@@ -145,9 +147,9 @@ public class DiskCache implements Cache
         File file = getFileForKey(key);
         try
         {
-            CountingInputStream cis =
-                    new CountingInputStream(
-                            new BufferedInputStream(createInputStream(file)), file.length());
+            CountingInputStream cis = new CountingInputStream(
+                    new BufferedInputStream(
+                            createInputStream(file)), file.length());
             try
             {
                 CacheHeader entryOnDisk = CacheHeader.readHeader(cis);
@@ -203,9 +205,8 @@ public class DiskCache implements Cache
             try
             {
                 long entrySize = file.length();
-                CountingInputStream cis =
-                        new CountingInputStream(
-                                new BufferedInputStream(createInputStream(file)), entrySize);
+                CountingInputStream cis = new CountingInputStream(
+                        new BufferedInputStream(createInputStream(file)), entrySize);
                 try
                 {
                     CacheHeader entry = CacheHeader.readHeader(cis);

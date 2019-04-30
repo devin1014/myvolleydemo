@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v)
             {
                 mVolley.add(
-                        new StringRequest(
-                                C.URL_GET,
+                        new PathRequest(
+                                C.URL_POST,
                                 mStringListener,
                                 mErrorListener)
                 );

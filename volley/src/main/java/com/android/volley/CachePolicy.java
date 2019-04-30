@@ -21,19 +21,32 @@ public interface CachePolicy
         @Override
         public boolean shouldCache(Request<?> request)
         {
-            return request.getMethod() == Method.GET || request.getMethod() == Method.DEPRECATED_GET_OR_POST;
+            return request.getMethod() == Method.GET
+                    || request.getMethod() == Method.DEPRECATED_GET_OR_POST;
         }
 
         @Override
         public int getCacheMaxAge()
         {
-            return Integer.MAX_VALUE;
+            return 0;
         }
 
         @Override
         public String getCacheKey(Request<?> request)
         {
-            return request.getCacheKey();
+            String url = request.getUrl();
+            // If this is a GET request, just use the URL as the key.
+            // For callers using DEPRECATED_GET_OR_POST, we assume the method is GET, which matches
+            // legacy behavior where all methods had the same cache key. We can't determine which method
+            // will be used because doing so requires calling getPostBody() which is expensive and may
+            // throw AuthFailureError.
+            int method = request.getMethod();
+            if (method == Method.GET
+                    || method == Method.DEPRECATED_GET_OR_POST)
+            {
+                return url;
+            }
+            return Integer.toString(method) + '-' + url;
         }
     }
 

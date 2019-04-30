@@ -18,6 +18,7 @@ package com.android.volley;
 
 import android.content.Context;
 
+import com.android.volley.CachePolicy.DefaultCachePolicy;
 import com.android.volley.RequestQueue.RequestEventListener;
 import com.android.volley.RequestQueue.RequestFilter;
 import com.android.volley.network.BasicNetwork;
@@ -125,7 +126,7 @@ public class Volley
         private HttpStack httpStack;
         private SSLSocketFactory sslSocketFactory;
         private Network network;
-        private CachePolicy cachePolicy;
+        private CachePolicy cachePolicy = new DefaultCachePolicy();
 
         public Builder(Context context)
         {

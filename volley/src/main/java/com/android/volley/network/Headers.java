@@ -24,6 +24,7 @@ public final class Headers
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String HEADER_DATE = "Date";
     public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    public static final String HEADER_PRAGMA = "Pragma";
     public static final String HEADER_NO_CACHE = "no-cache";
     public static final String HEADER_NO_STORE = "no-store";
     public static final String HEADER_MAX_AGE = "max-age=";

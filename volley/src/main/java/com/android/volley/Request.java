@@ -26,7 +26,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.android.volley.CachePolicy.DefaultCachePolicy;
 import com.android.volley.RequestQueue.RequestEvent;
 import com.android.volley.RetryPolicy.DefaultRetryPolicy;
 import com.android.volley.VolleyLog.MarkerLog;
@@ -207,7 +206,6 @@ public abstract class Request<T> implements Comparable<Request<T>>
         mUrl = url;
         mErrorListener = listener;
         setRetryPolicy(new DefaultRetryPolicy());
-        //setCachePolicy(new DefaultCachePolicy());
 
         mDefaultTrafficStatsTag = findDefaultTrafficStatsTag(url);
     }
@@ -412,19 +410,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
      */
     public String getCacheKey()
     {
-        String url = getUrl();
-        // If this is a GET request, just use the URL as the key.
-        // For callers using DEPRECATED_GET_OR_POST, we assume the method is GET, which matches
-        // legacy behavior where all methods had the same cache key. We can't determine which method
-        // will be used because doing so requires calling getPostBody() which is expensive and may
-        // throw AuthFailureError.
-        // TODO(#190): Remove support for non-GET methods.
-        int method = getMethod();
-        if (method == Method.GET || method == Method.DEPRECATED_GET_OR_POST)
-        {
-            return url;
-        }
-        return Integer.toString(method) + '-' + url;
+        return mCachePolicy.getCacheKey(this);
     }
 
     /**

@@ -133,19 +133,23 @@ public interface Interceptors
         {
             if (request.shouldCache())
             {
-                Header cacheControlHeader = findHeader(headers, Headers.HEADER_CACHE_CONTROL);
-                if (cacheControlHeader != null)
+                // handle 'Cache-Control' header
+                Header cacheControl = findHeader(headers, Headers.HEADER_CACHE_CONTROL);
+                if (cacheControl != null)
                 {
-                    String[] tokens = cacheControlHeader.getName().split(",", 0);
+                    String[] tokens = cacheControl.getValue().split(",", 0);
                     for (String t : tokens)
                     {
                         String token = t.trim();
                         if (token.equals(Headers.HEADER_NO_CACHE) || token.equals(Headers.HEADER_NO_STORE))
                         {
-                            headers.remove(cacheControlHeader);
-                            Header newCacheControlHeader = new Header(Headers.HEADER_CACHE_CONTROL,
-                                    Headers.HEADER_MAX_AGE + request.getCachePolicy().getCacheMaxAge());
-                            headers.add(newCacheControlHeader);
+                            // add new 'Cache-Control' header
+                            headers.remove(cacheControl);
+                            headers.add(
+                                    new Header(Headers.HEADER_CACHE_CONTROL,
+                                            Headers.HEADER_MAX_AGE + request.getCachePolicy().getCacheMaxAge()));
+                            removeHeader(headers, Headers.HEADER_PRAGMA);
+                            removeHeader(headers, Headers.HEADER_EXPIRES);
                             break;
                         }
                     }
@@ -207,6 +211,18 @@ public interface Interceptors
             }
 
             return null;
+        }
+
+        private void removeHeader(List<Header> headers, String name)
+        {
+            for (Header h : headers)
+            {
+                if (h.getName().equalsIgnoreCase(name))
+                {
+                    headers.remove(h);
+                    break;
+                }
+            }
         }
     }
 }

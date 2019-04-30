@@ -18,6 +18,11 @@ public class C
     private static final String URL_IMAGE_CACHE_MAX_AGE_600 =
             "https://neulionsmbnyc-a.akamaihd.net/u/qa88/espnv6/thumbs/channels/2_es.jpg";
 
+    private static final String URL_VIDEO_PATH =
+            "http://vip.sports.cctv.com/servlets/encryptvideopath.do";
+
     // ---- Impl ----
     public static final String URL_GET = URL_NL_CONFIG_CDN;
+
+    public static final String URL_POST = URL_VIDEO_PATH;
 }
