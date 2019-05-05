@@ -19,9 +19,14 @@ package com.android.volley;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.android.volley.exception.AuthFailureError;
+import com.android.volley.network.Header;
+import com.android.volley.network.HttpResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Logging helper class.
@@ -122,7 +127,7 @@ public class VolleyLog
      */
     static class MarkerLog
     {
-        public static final boolean ENABLED = VolleyLog.DEBUG;
+        static final boolean ENABLED = VolleyLog.DEBUG;
 
         /**
          * Minimum duration from first marker to last in an marker log to warrant logging.
@@ -165,7 +170,7 @@ public class VolleyLog
          *
          * @param header Header string to print above the marker log.
          */
-        public synchronized void finish(String header)
+        synchronized void finish(String header)
         {
             mFinished = true;
 
@@ -210,6 +215,41 @@ public class VolleyLog
             long first = mMarkers.get(0).time;
             long last = mMarkers.get(mMarkers.size() - 1).time;
             return last - first;
+        }
+    }
+
+    public static class NetworkLog
+    {
+        public static void logRequest(Request<?> request,
+                                      Map<String, String> additionalHeaders) throws AuthFailureError
+        {
+            if (DEBUG)
+            {
+                VolleyLog.d("\nrequest:"
+                                + "\n\tmethod=%s,"
+                                + "\n\turl=%s,"
+                                + "\n\theaders=%s"
+                                + "\n\tadditionalHeaders=%s",
+                        request.getMethod(),
+                        request.getUrl(),
+                        request.getHeaders(),
+                        additionalHeaders);
+            }
+        }
+
+        public static void logResponse(HttpResponse httpResponse,
+                                       List<Header> responseHeaders)
+        {
+            if (DEBUG)
+            {
+                VolleyLog.d("\nresponse:"
+                                + "\n\tcode=%s,"
+                                + "\n\tcontentLength=%s,"
+                                + "\n\theaders=%s",
+                        httpResponse.getStatusCode(),
+                        httpResponse.getContentLength(),
+                        responseHeaders);
+            }
         }
     }
 }

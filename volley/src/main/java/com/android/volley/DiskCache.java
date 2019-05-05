@@ -35,6 +35,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -283,7 +284,7 @@ public class DiskCache implements Cache
             pruneIfNeeded();
             return;
         }
-        catch (IOException e)
+        catch (IOException ignored)
         {
         }
         boolean deleted = file.delete();
@@ -720,7 +721,7 @@ public class DiskCache implements Cache
 
     static void writeString(OutputStream os, String s) throws IOException
     {
-        byte[] b = s.getBytes("UTF-8");
+        byte[] b = s.getBytes(Charset.forName("UTF-8"));
         writeLong(os, b.length);
         os.write(b, 0, b.length);
     }
@@ -729,7 +730,7 @@ public class DiskCache implements Cache
     {
         long n = readLong(cis);
         byte[] b = streamToBytes(cis, n);
-        return new String(b, "UTF-8");
+        return new String(b, Charset.forName("UTF-8"));
     }
 
     static void writeHeaderList(List<Header> headers, OutputStream os) throws IOException

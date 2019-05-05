@@ -22,6 +22,7 @@ import com.android.volley.Cache.Entry;
 import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyLog;
+import com.android.volley.VolleyLog.NetworkLog;
 import com.android.volley.exception.AuthFailureError;
 import com.android.volley.exception.ClientError;
 import com.android.volley.exception.NetworkError;
@@ -29,10 +30,9 @@ import com.android.volley.exception.NoConnectionError;
 import com.android.volley.exception.ServerError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
-import com.android.volley.network.Interceptors.CacheInterceptor;
-import com.android.volley.network.Interceptors.CacheInterceptorImp;
-import com.android.volley.network.Interceptors.HeaderInterceptor;
-import com.android.volley.network.Interceptors.HeaderInterceptorImp;
+import com.android.volley.network.Interceptors.CacheHeaderInterceptor;
+import com.android.volley.network.Interceptors.HeaderInterceptors;
+import com.android.volley.network.Interceptors.HttpHeaderInterceptor;
 import com.android.volley.toolbox.ByteArrayPool;
 import com.android.volley.toolbox.PoolingByteArrayOutputStream;
 
@@ -41,9 +41,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,9 +58,7 @@ public class BasicNetwork implements Network
 
     private final HttpStack mHttpStack;
 
-    private final HeaderInterceptor mHeaderInterceptor;
-
-    private final CacheInterceptor mCacheInterceptor;
+    private final HeaderInterceptors mHeaderInterceptors;
 
     private final ByteArrayPool mPool;
 
@@ -85,8 +81,9 @@ public class BasicNetwork implements Network
     {
         mHttpStack = httpStack;
         mPool = pool;
-        mHeaderInterceptor = new HeaderInterceptorImp();// FIXME: optimize interceptor
-        mCacheInterceptor = new CacheInterceptorImp();
+        mHeaderInterceptors = new HeaderInterceptors(
+                new HttpHeaderInterceptor(),
+                new CacheHeaderInterceptor());
     }
 
     @Override
@@ -101,35 +98,12 @@ public class BasicNetwork implements Network
             try
             {
                 // Gather headers.
-                Map<String, String> additionalHeaders = new HashMap<>();
-                additionalHeaders = mHeaderInterceptor.interceptRequest(additionalHeaders, request);
-
-                if (DEBUG)
-                {
-                    VolleyLog.d("\nrequest:"
-                                    + "\n\tmethod=%s,"
-                                    + "\n\turl=%s,"
-                                    + "\n\theaders=%s"
-                                    + "\n\tadditionalHeaders=%s",
-                            request.getMethod(),
-                            request.getUrl(),
-                            request.getHeaders(),
-                            additionalHeaders);
-                }
-                httpResponse = mHttpStack.executeRequest(request, additionalHeaders);
+                Map<String, String> requestHeaders = mHeaderInterceptors.interceptRequest(request);
+                NetworkLog.logRequest(request, requestHeaders);
+                httpResponse = mHttpStack.executeRequest(request, requestHeaders);
                 int statusCode = httpResponse.getStatusCode();
-                responseHeaders = mHeaderInterceptor.interceptResponse(new ArrayList<Header>(), httpResponse, request);
-                responseHeaders = mCacheInterceptor.interceptResponse(responseHeaders, httpResponse, request);
-                if (DEBUG)
-                {
-                    VolleyLog.d("\nresponse:"
-                                    + "\n\tcode=%s,"
-                                    + "\n\tcontentLength=%s,"
-                                    + "\n\theaders=%s",
-                            statusCode,
-                            httpResponse.getContentLength(),
-                            responseHeaders);
-                }
+                responseHeaders = mHeaderInterceptors.interceptResponse(httpResponse, request);
+                NetworkLog.logResponse(httpResponse, responseHeaders);
                 // Handle cache validation.
                 if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) // 304
                 {

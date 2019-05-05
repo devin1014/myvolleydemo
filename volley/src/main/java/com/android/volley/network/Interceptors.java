@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import com.android.volley.Cache;
 import com.android.volley.Request;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,62 +15,76 @@ import java.util.Map;
 
 public interface Interceptors
 {
+    class HeaderInterceptors
+    {
+        private List<HeaderInterceptor> mInterceptors;
+
+        HeaderInterceptors(HeaderInterceptor... interceptors)
+        {
+            mInterceptors = Arrays.asList(interceptors);
+        }
+
+        Map<String, String> interceptRequest(@NonNull Request<?> request)
+        {
+            Map<String, String> headers = new HashMap<>();
+
+            for (HeaderInterceptor interceptor : mInterceptors)
+            {
+                interceptor.interceptRequest(headers, request);
+            }
+
+            return headers;
+        }
+
+        List<Header> interceptResponse(@NonNull HttpResponse response,
+                                       @NonNull Request<?> request)
+        {
+            List<Header> headers = new ArrayList<>();
+
+            for (HeaderInterceptor interceptor : mInterceptors)
+            {
+                interceptor.interceptResponse(headers, response, request);
+            }
+
+            return headers;
+        }
+    }
+
     // -----------------------------------------------------------------------
     // - Header Interceptor
     // -----------------------------------------------------------------------
     interface HeaderInterceptor
     {
-        boolean enable();
+        void interceptRequest(@NonNull Map<String, String> headers,
+                              @NonNull Request<?> request);
 
-        @NonNull
-        Map<String, String> interceptRequest(@NonNull Map<String, String> headers,
-                                             @NonNull Request<?> request);
-
-        @NonNull
-        List<Header> interceptResponse(@NonNull List<Header> headers,
-                                       @NonNull HttpResponse response,
-                                       @NonNull Request<?> request);
+        void interceptResponse(@NonNull List<Header> headers,
+                               @NonNull HttpResponse response,
+                               @NonNull Request<?> request);
     }
 
     // -----------------------------------------------------------------------
     // - Impl
     // -----------------------------------------------------------------------
-    class HeaderInterceptorImp implements HeaderInterceptor
+    class HttpHeaderInterceptor implements HeaderInterceptor
     {
-        boolean enable = true;
-
-        void setEnable(boolean enable)
-        {
-            this.enable = enable;
-        }
-
         @Override
-        public boolean enable()
-        {
-            return enable;
-        }
-
-        @NonNull
-        @Override
-        public Map<String, String> interceptRequest(@NonNull Map<String, String> headers,
-                                                    @NonNull Request<?> request)
+        public void interceptRequest(@NonNull Map<String, String> headers,
+                                     @NonNull Request<?> request)
         {
             Map<String, String> cacheHeader = getCacheHeaders(request.getCacheEntry());
 
             headers.putAll(cacheHeader);
 
-            return headers;
         }
 
-        @NonNull
         @Override
-        public List<Header> interceptResponse(@NonNull List<Header> headers,
-                                              @NonNull HttpResponse response,
-                                              @NonNull Request<?> request)
+        public void interceptResponse(@NonNull List<Header> headers,
+                                      @NonNull HttpResponse response,
+                                      @NonNull Request<?> request)
         {
             headers.addAll(response.getHeaders());
 
-            return headers;
         }
 
         private Map<String, String> getCacheHeaders(Cache.Entry entry)
@@ -96,40 +112,24 @@ public interface Interceptors
     }
 
     // -----------------------------------------------------------------------
-    // - Cache Interceptor
-    // -----------------------------------------------------------------------
-    interface CacheInterceptor extends HeaderInterceptor
-    {
-    }
-
-    // -----------------------------------------------------------------------
     // - Impl
     // -----------------------------------------------------------------------
-    class CacheInterceptorImp implements CacheInterceptor
+    class CacheHeaderInterceptor implements HeaderInterceptor
     {
-        CacheInterceptorImp()
+        CacheHeaderInterceptor()
         {
         }
 
         @Override
-        public boolean enable()
+        public void interceptRequest(@NonNull Map<String, String> headers,
+                                     @NonNull Request<?> request)
         {
-            return false;
         }
 
-        @NonNull
         @Override
-        public Map<String, String> interceptRequest(@NonNull Map<String, String> headers,
-                                                    @NonNull Request<?> request)
-        {
-            return headers;
-        }
-
-        @NonNull
-        @Override
-        public List<Header> interceptResponse(@NonNull List<Header> headers,
-                                              @NonNull HttpResponse response,
-                                              @NonNull Request<?> request)
+        public void interceptResponse(@NonNull List<Header> headers,
+                                      @NonNull HttpResponse response,
+                                      @NonNull Request<?> request)
         {
             if (request.shouldCache())
             {
@@ -196,8 +196,6 @@ public interface Interceptors
                     headers.add(new Header(Headers.HEADER_CACHE_CONTROL, Headers.HEADER_NO_CACHE));
                 }
             }
-
-            return headers;
         }
 
         private Header findHeader(List<Header> headers, String name)
