@@ -27,6 +27,7 @@ import com.android.volley.exception.VolleyError;
 import com.android.volley.network.Network;
 import com.android.volley.network.NetworkResponse;
 
+import java.net.HttpURLConnection;
 import java.util.concurrent.BlockingQueue;
 
 
@@ -172,10 +173,19 @@ public class NetworkDispatcher extends Thread
 
             // Write to cache if applicable.
             // TODO: Only update cache metadata instead of entire record for 304s.
+            // FIXME:
             if (request.shouldCache() && response.cacheEntry != null)
             {
-                mCache.put(request.getCacheKey(), response.cacheEntry);
-                request.addMarker("network-cache-written");
+                if (networkResponse.statusCode == HttpURLConnection.HTTP_NOT_MODIFIED)
+                {
+                    mCache.update(request.getCacheKey(), response.cacheEntry);
+                    request.addMarker("network-cache-header-written");
+                }
+                else
+                {
+                    mCache.put(request.getCacheKey(), response.cacheEntry);
+                    request.addMarker("network-cache-written");
+                }
             }
 
             // Post the response back.

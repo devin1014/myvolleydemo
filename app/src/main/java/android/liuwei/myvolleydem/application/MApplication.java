@@ -1,4 +1,4 @@
-package liuwei.android.myvolleydemo;
+package android.liuwei.myvolleydem.application;
 
 import android.app.Application;
 

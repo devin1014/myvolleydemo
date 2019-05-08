@@ -44,6 +44,14 @@ public interface Cache
     void put(String key, Entry entry);
 
     /**
+     * Update cache metadata to the cache for 304.insteadof update all entry file.
+     *
+     * @param key   Cache key
+     * @param entry Data to store and metadata for cache coherency, TTL, etc.
+     */
+    void update(String key, Entry entry);
+
+    /**
      * Performs any potentially long-running actions needed to initialize the cache; will be called
      * from a worker thread.
      */
@@ -155,6 +163,11 @@ public interface Cache
 
         @Override
         public void put(String key, Entry entry)
+        {
+        }
+
+        @Override
+        public void update(String key, Entry entry)
         {
         }
 

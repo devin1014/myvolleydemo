@@ -1,4 +1,4 @@
-package liuwei.android.myvolleydemo;
+package android.liuwei.myvolleydem;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,9 +7,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TextView;
 
 import com.android.volley.CachePolicy.AllCachePolicy;
 import com.android.volley.CachePolicy.DefaultCachePolicy;
+import com.android.volley.CachePolicy.ErrorCachePolicy;
 import com.android.volley.CachePolicy.NoCachePolicy;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -22,6 +24,7 @@ import com.android.volley.toolbox.StringRequest;
 public class MainActivity extends AppCompatActivity
 {
     private Volley mVolley;
+    private TextView mResponseTxt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,10 +36,14 @@ public class MainActivity extends AppCompatActivity
         mVolley = new Builder(this).buildAndRetainInstance();
 
         initComponent();
+
+        VolleyLog.d("cache file = %s/volley", getCacheDir().getAbsolutePath());
     }
 
     private void initComponent()
     {
+        mResponseTxt = findViewById(R.id.response_content);
+
         ((RadioGroup) findViewById(R.id.cache_type))
                 .setOnCheckedChangeListener(new OnCheckedChangeListener()
                 {
@@ -54,6 +61,9 @@ public class MainActivity extends AppCompatActivity
                             case R.id.all_cache:
                                 mVolley.setCachePolicy(new AllCachePolicy());
                                 break;
+                            case R.id.error_cache:
+                                mVolley.setCachePolicy(new ErrorCachePolicy());
+                                break;
                         }
                     }
                 });
@@ -65,7 +75,7 @@ public class MainActivity extends AppCompatActivity
             {
                 mVolley.add(
                         new StringRequest(
-                                C.URL_GET,
+                                CONSTANT.URL_GET,
                                 mStringListener,
                                 mErrorListener)
                 );
@@ -79,7 +89,7 @@ public class MainActivity extends AppCompatActivity
             {
                 mVolley.add(
                         new PathRequest(
-                                C.URL_POST,
+                                CONSTANT.URL_POST,
                                 mStringListener,
                                 mErrorListener)
                 );
@@ -93,6 +103,7 @@ public class MainActivity extends AppCompatActivity
         public void onResponse(String response)
         {
             Log.i("Volley", response);
+            mResponseTxt.setText(response);
         }
     };
 
@@ -102,6 +113,7 @@ public class MainActivity extends AppCompatActivity
         public void onErrorResponse(VolleyError error)
         {
             Log.i("Volley", error.toString());
+            mResponseTxt.setText(error.toString());
         }
     };
 }

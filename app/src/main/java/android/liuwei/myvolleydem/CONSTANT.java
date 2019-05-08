@@ -1,6 +1,6 @@
-package liuwei.android.myvolleydemo;
+package android.liuwei.myvolleydem;
 
-public class C
+public class CONSTANT
 {
     private static final String URL_BAIDU
             = "http://www.baidu.com";

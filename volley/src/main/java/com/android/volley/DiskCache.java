@@ -114,6 +114,54 @@ public class DiskCache implements Cache
     }
 
     /**
+     * Initializes the DiskBasedCache by scanning for all files currently in the specified root
+     * directory. Creates the root directory if necessary.
+     */
+    @Override
+    public synchronized void initialize()
+    {
+        if (!mRootDirectory.exists())
+        {
+            if (!mRootDirectory.mkdirs())
+            {
+                VolleyLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
+            }
+            return;
+        }
+        File[] files = mRootDirectory.listFiles();
+        if (files == null)
+        {
+            return;
+        }
+        for (File file : files)
+        {
+            try
+            {
+                long entrySize = file.length();
+                CountingInputStream cis = new CountingInputStream(
+                        new BufferedInputStream(createInputStream(file)), entrySize);
+                try
+                {
+                    CacheHeader entry = CacheHeader.readHeader(cis);
+                    entry.size = entrySize;
+                    putEntry(entry.key, entry);
+                }
+                finally
+                {
+                    // Any IOException thrown here is handled by the below catch block by design.
+                    //noinspection ThrowFromFinallyBlock
+                    cis.close();
+                }
+            }
+            catch (IOException e)
+            {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
+        }
+    }
+
+    /**
      * Clears the cache. Deletes all cached files from disk.
      */
     @Override
@@ -182,54 +230,6 @@ public class DiskCache implements Cache
     }
 
     /**
-     * Initializes the DiskBasedCache by scanning for all files currently in the specified root
-     * directory. Creates the root directory if necessary.
-     */
-    @Override
-    public synchronized void initialize()
-    {
-        if (!mRootDirectory.exists())
-        {
-            if (!mRootDirectory.mkdirs())
-            {
-                VolleyLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
-            }
-            return;
-        }
-        File[] files = mRootDirectory.listFiles();
-        if (files == null)
-        {
-            return;
-        }
-        for (File file : files)
-        {
-            try
-            {
-                long entrySize = file.length();
-                CountingInputStream cis = new CountingInputStream(
-                        new BufferedInputStream(createInputStream(file)), entrySize);
-                try
-                {
-                    CacheHeader entry = CacheHeader.readHeader(cis);
-                    entry.size = entrySize;
-                    putEntry(entry.key, entry);
-                }
-                finally
-                {
-                    // Any IOException thrown here is handled by the below catch block by design.
-                    //noinspection ThrowFromFinallyBlock
-                    cis.close();
-                }
-            }
-            catch (IOException e)
-            {
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            }
-        }
-    }
-
-    /**
      * Invalidates an entry in the cache.
      *
      * @param key        Cache key
@@ -292,6 +292,35 @@ public class DiskCache implements Cache
         {
             VolleyLog.d("Could not clean up file %s", file.getAbsolutePath());
         }
+    }
+
+    @Override
+    public void update(String key, Entry entry)
+    {
+        put(key, entry);
+        // just upgrade cache file meta,not refresh all entry
+        //        File file = getFileForKey(key);
+        //        try
+        //        {
+        //            BufferedOutputStream fos = new BufferedOutputStream(createOutputStream(file));
+        //            CacheHeader e = new CacheHeader(key, entry);
+        //            boolean success = e.writeHeader(fos);
+        //            fos.close();
+        //            if (!success)
+        //            {
+        //                VolleyLog.d("Failed to write header for %s", file.getAbsolutePath());
+        //                throw new IOException();
+        //            }
+        //            return;
+        //        }
+        //        catch (IOException ignored)
+        //        {
+        //        }
+        //        boolean deleted = file.delete();
+        //        if (!deleted)
+        //        {
+        //            VolleyLog.d("Could not clean up file %s", file.getAbsolutePath());
+        //        }
     }
 
     /**
@@ -454,6 +483,7 @@ public class DiskCache implements Cache
     @VisibleForTesting
     static class CacheHeader
     {
+        final String SEPARATOR = "\r\n";
         /**
          * The size of the data identified by this CacheHeader on disk (both header and data).
          *
@@ -559,6 +589,7 @@ public class DiskCache implements Cache
             long ttl = readLong(is);
             long softTtl = readLong(is);
             List<Header> allResponseHeaders = readHeaderList(is);
+            readString(is); //separator \n\r, no use but must be read!
             return new CacheHeader(
                     key, etag, serverDate, lastModified, ttl, softTtl, allResponseHeaders);
         }
@@ -595,6 +626,7 @@ public class DiskCache implements Cache
                 writeLong(os, ttl);
                 writeLong(os, softTtl);
                 writeHeaderList(allResponseHeaders, os);
+                writeString(os, SEPARATOR);
                 os.flush();
                 return true;
             }
@@ -757,8 +789,7 @@ public class DiskCache implements Cache
         {
             throw new IOException("readHeaderList size=" + size);
         }
-        List<Header> result =
-                (size == 0) ? Collections.<Header>emptyList() : new ArrayList<Header>();
+        List<Header> result = (size == 0) ? Collections.<Header>emptyList() : new ArrayList<Header>();
         for (int i = 0; i < size; i++)
         {
             String name = readString(cis).intern();

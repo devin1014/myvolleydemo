@@ -110,19 +110,23 @@ public class BasicNetwork implements Network
                     Entry entry = request.getCacheEntry();
                     if (entry == null)
                     {
-                        return new NetworkResponse(HttpURLConnection.HTTP_NOT_MODIFIED,
-                                null,
-                                true,
-                                SystemClock.elapsedRealtime() - requestStart,
-                                responseHeaders);
+                        return
+                                new NetworkResponse(
+                                        HttpURLConnection.HTTP_NOT_MODIFIED,
+                                        null,
+                                        true,
+                                        SystemClock.elapsedRealtime() - requestStart,
+                                        responseHeaders);
                     }
                     // Combine cached and response headers so the response will be complete.
                     List<Header> combinedHeaders = Headers.combineHeaders(responseHeaders, entry);
-                    return new NetworkResponse(HttpURLConnection.HTTP_NOT_MODIFIED,
-                            entry.data,
-                            true,
-                            SystemClock.elapsedRealtime() - requestStart,
-                            combinedHeaders);
+                    return
+                            new NetworkResponse(
+                                    HttpURLConnection.HTTP_NOT_MODIFIED,
+                                    entry.data,
+                                    true,
+                                    SystemClock.elapsedRealtime() - requestStart,
+                                    combinedHeaders);
                 }
 
                 // Some responses such as 204s do not have content.  We must check.
@@ -146,12 +150,13 @@ public class BasicNetwork implements Network
                 {
                     throw new IOException();
                 }
-                return new NetworkResponse(
-                        statusCode,
-                        responseContents,
-                        false,
-                        SystemClock.elapsedRealtime() - requestStart,
-                        responseHeaders);
+                return
+                        new NetworkResponse(
+                                statusCode,
+                                responseContents,
+                                false,
+                                SystemClock.elapsedRealtime() - requestStart,
+                                responseHeaders);
             }
             catch (SocketTimeoutException e)
             {
@@ -170,6 +175,23 @@ public class BasicNetwork implements Network
                 }
                 else
                 {
+                    if (request.getCachePolicy().responseInError(request, e))
+                    {
+                        Entry entry = request.getCacheEntry();
+                        if (entry != null)
+                        {
+                            // Combine cached and response headers so the response will be complete.
+                            List<Header> combinedHeaders = Headers.combineHeaders(responseHeaders, entry);
+                            return
+                                    new NetworkResponse(
+                                            HttpURLConnection.HTTP_NOT_MODIFIED,
+                                            entry.data,
+                                            true,
+                                            SystemClock.elapsedRealtime() - requestStart,
+                                            combinedHeaders);
+                        }
+                    }
+
                     throw new NoConnectionError(e);
                 }
                 VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());

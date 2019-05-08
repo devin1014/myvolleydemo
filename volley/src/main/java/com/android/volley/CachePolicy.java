@@ -9,6 +9,8 @@ public interface CachePolicy
 {
     boolean shouldCache(Request<?> request);
 
+    boolean responseInError(Request<?> request, Exception e);
+
     int getCacheMaxAge();
 
     String getCacheKey(Request<?> request);
@@ -48,9 +50,24 @@ public interface CachePolicy
             }
             return Integer.toString(method) + '-' + url;
         }
+
+        @Override
+        public boolean responseInError(Request<?> request, Exception e)
+        {
+            return false;
+        }
     }
 
-    class NoCachePolicy implements CachePolicy
+    final class ErrorCachePolicy extends DefaultCachePolicy
+    {
+        @Override
+        public boolean responseInError(Request<?> request, Exception e)
+        {
+            return request.shouldCache() && request.getCacheEntry() != null;
+        }
+    }
+
+    final class NoCachePolicy implements CachePolicy
     {
         @Override
         public boolean shouldCache(Request<?> request)
@@ -69,9 +86,15 @@ public interface CachePolicy
         {
             return "";
         }
+
+        @Override
+        public boolean responseInError(Request<?> request, Exception e)
+        {
+            return false;
+        }
     }
 
-    class AllCachePolicy implements CachePolicy
+    final class AllCachePolicy implements CachePolicy
     {
         @Override
         public boolean shouldCache(Request<?> request)
@@ -117,6 +140,12 @@ public interface CachePolicy
                 authFailureError.printStackTrace();
             }
             return builder.toString();
+        }
+
+        @Override
+        public boolean responseInError(Request<?> request, Exception e)
+        {
+            return false;
         }
     }
 }

@@ -116,6 +116,8 @@ public interface Interceptors
     // -----------------------------------------------------------------------
     class CacheHeaderInterceptor implements HeaderInterceptor
     {
+        private final String ETAG = "CacheTag-" + Integer.toHexString(getClass().getName().hashCode());
+
         CacheHeaderInterceptor()
         {
         }
@@ -158,7 +160,7 @@ public interface Interceptors
                 Header eTag = findHeader(headers, Headers.HEADER_ETAG);
                 if (eTag == null)
                 {
-                    eTag = new Header(Headers.HEADER_ETAG, Integer.toHexString(String.valueOf(System.currentTimeMillis()).hashCode()));
+                    eTag = new Header(Headers.HEADER_ETAG, ETAG);
                     headers.add(eTag);
                 }
 
