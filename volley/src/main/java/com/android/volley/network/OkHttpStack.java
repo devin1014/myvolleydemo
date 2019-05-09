@@ -86,14 +86,6 @@ public class OkHttpStack implements HttpStack
     {
         switch (request.getMethod())
         {
-            case Request.Method.DEPRECATED_GET_OR_POST:
-                // Ensure backwards compatibility.  Volley assumes a request with a null body is a GET.
-                byte[] postBody = request.getPostBody();
-                if (postBody != null)
-                {
-                    builder.post(RequestBody.create(MediaType.parse(request.getPostBodyContentType()), postBody));
-                }
-                break;
             case Request.Method.GET:
                 builder.get();
                 break;

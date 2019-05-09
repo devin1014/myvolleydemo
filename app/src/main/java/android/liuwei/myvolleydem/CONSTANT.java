@@ -21,6 +21,10 @@ public class CONSTANT
     private static final String URL_VIDEO_PATH =
             "http://vip.sports.cctv.com/servlets/encryptvideopath.do";
 
+    public static final String URL_ACCESS_TOKEN = "https://espnplayerqa.neulion.com/secure/accesstoken";
+
+    public static final String URL_CHANNEL = "https://qaapi.neulion.com/api_espn/v1/channels";
+
     // ---- Impl ----
     public static final String URL_GET = URL_NL_CONFIG_CDN;
 

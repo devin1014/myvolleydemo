@@ -27,17 +27,23 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.android.volley.RequestQueue.RequestEvent;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
 import com.android.volley.RetryPolicy.DefaultRetryPolicy;
 import com.android.volley.VolleyLog.MarkerLog;
 import com.android.volley.exception.AuthFailureError;
+import com.android.volley.exception.ParseError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
 import com.android.volley.network.NetworkResponse;
+import com.android.volley.toolbox.SimpleRequest;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 /**
@@ -57,7 +63,6 @@ public abstract class Request<T> implements Comparable<Request<T>>
      */
     public interface Method
     {
-        int DEPRECATED_GET_OR_POST = -1;
         int GET = 0;
         int POST = 1;
         int PUT = 2;
@@ -82,6 +87,11 @@ public abstract class Request<T> implements Comparable<Request<T>>
          * Callback when request returns from network without valid response.
          */
         void onNoUsableResponseReceived(Request<?> request);
+    }
+
+    public interface ResponseParser<T>
+    {
+        T parse(String data) throws ParseError;
     }
 
     /**
@@ -167,6 +177,8 @@ public abstract class Request<T> implements Comparable<Request<T>>
      */
     private Cache.Entry mCacheEntry = null;
 
+    private ResponseParser<T> mResponseParser;
+
     /**
      * An opaque token tagging this request; used for bulk cancellation.
      */
@@ -189,7 +201,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
     public Request(String url,
                    Response.ErrorListener listener)
     {
-        this(Method.DEPRECATED_GET_OR_POST, url, listener);
+        this(Method.GET, url, listener);
     }
 
     /**
@@ -480,72 +492,6 @@ public abstract class Request<T> implements Comparable<Request<T>>
         return Collections.emptyMap();
     }
 
-    /**
-     * Returns a Map of POST parameters to be used for this request, or null if a simple GET should
-     * be used. Can throw {@link AuthFailureError} as authentication may be required to provide
-     * these values.
-     *
-     * <p>Note that only one of getPostParams() and getPostBody() can return a non-null value.
-     *
-     * @throws AuthFailureError In the event of auth failure
-     * @deprecated Use {@link #getParams()} instead.
-     */
-    @Deprecated
-    protected Map<String, String> getPostParams() throws AuthFailureError
-    {
-        return getParams();
-    }
-
-    /**
-     * Returns which encoding should be used when converting POST parameters returned by {@link
-     * #getPostParams()} into a raw POST body.
-     *
-     * <p>This controls both encodings:
-     *
-     * <ol>
-     * <li>The string encoding used when converting parameter names and values into bytes prior to
-     * URL encoding them.
-     * <li>The string encoding used when converting the URL encoded parameters into a raw byte
-     * array.
-     * </ol>
-     *
-     * @deprecated Use {@link #getParamsEncoding()} instead.
-     */
-    @Deprecated
-    protected String getPostParamsEncoding()
-    {
-        return getParamsEncoding();
-    }
-
-    /**
-     * @deprecated Use {@link #getBodyContentType()} instead.
-     */
-    @Deprecated
-    public String getPostBodyContentType()
-    {
-        return getBodyContentType();
-    }
-
-    /**
-     * Returns the raw POST body to be sent.
-     *
-     * @throws AuthFailureError In the event of auth failure
-     * @deprecated Use {@link #getBody()} instead.
-     */
-    @Deprecated
-    public byte[] getPostBody() throws AuthFailureError
-    {
-        // Note: For compatibility with legacy clients of volley, this implementation must remain
-        // here instead of simply calling the getBody() function because this function must
-        // call getPostParams() and getPostParamsEncoding() since legacy clients would have
-        // overridden these two member functions for POST requests.
-        Map<String, String> postParams = getPostParams();
-        if (postParams != null && postParams.size() > 0)
-        {
-            return encodeParameters(postParams, getPostParamsEncoding());
-        }
-        return null;
-    }
 
     /**
      * Returns a Map of parameters to be used for a POST or PUT request. Can throw {@link
@@ -624,10 +570,13 @@ public abstract class Request<T> implements Comparable<Request<T>>
                                             + "and values must be non-null.",
                                     entry.getKey(), entry.getValue()));
                 }
+                if (encodedParams.length() > 0)
+                {
+                    encodedParams.append('&');
+                }
                 encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
                 encodedParams.append('=');
                 encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
-                encodedParams.append('&');
             }
             return encodedParams.toString().getBytes(paramsEncoding);
         }
@@ -673,6 +622,16 @@ public abstract class Request<T> implements Comparable<Request<T>>
     public final boolean shouldRetryServerErrors()
     {
         return mShouldRetryServerErrors;
+    }
+
+    public void setResponseParser(ResponseParser<T> responseParser)
+    {
+        mResponseParser = responseParser;
+    }
+
+    protected ResponseParser<T> getResponseParser()
+    {
+        return mResponseParser;
     }
 
     /**
@@ -791,7 +750,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * {@link NetworkRequestCompleteListener} that will receive callbacks when the request returns
      * from the network.
      */
-    /* package */ void setNetworkRequestCompleteListener(NetworkRequestCompleteListener requestCompleteListener)
+    void setNetworkRequestCompleteListener(NetworkRequestCompleteListener requestCompleteListener)
     {
         synchronized (mLock)
         {
@@ -805,7 +764,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
      *
      * @param response received from the network
      */
-    /* package */ void notifyListenerResponseReceived(Response<?> response)
+    void notifyListenerResponseReceived(Response<?> response)
     {
         NetworkRequestCompleteListener listener;
         synchronized (mLock)
@@ -822,7 +781,7 @@ public abstract class Request<T> implements Comparable<Request<T>>
      * Notify NetworkRequestCompleteListener that the network request did not result in a response
      * which can be used for other, waiting requests.
      */
-    /* package */ void notifyListenerResponseNotUsable()
+    void notifyListenerResponseNotUsable()
     {
         NetworkRequestCompleteListener listener;
         synchronized (mLock)
@@ -863,5 +822,133 @@ public abstract class Request<T> implements Comparable<Request<T>>
                 + getPriority()
                 + " "
                 + mSequence;
+    }
+
+    public static class Builder
+    {
+        private int method = Method.GET;
+        private String url;
+        private Map<String, String> params;
+        private ResponseParser<?> responseParser;
+        private Listener<?> listener;
+        private ErrorListener errorListener;
+
+        public Builder()
+        {
+        }
+
+        public Builder get()
+        {
+            this.method = Method.GET;
+            return this;
+        }
+
+        public Builder post()
+        {
+            this.method = Method.POST;
+            return this;
+        }
+
+        public Builder url(String url)
+        {
+            this.url = url;
+            return this;
+        }
+
+        public Builder setParams(Map<String, String> params)
+        {
+            this.params = params;
+            return this;
+        }
+
+        public Builder addParam(String name, String value)
+        {
+            if (params == null)
+            {
+                params = new HashMap<>();
+            }
+            params.put(name, value);
+            return this;
+        }
+
+        public <T> Builder setResponseParser(ResponseParser<T> responseParser)
+        {
+            this.responseParser = responseParser;
+            return this;
+        }
+
+        public <T> Builder setListener(Listener<T> listener)
+        {
+            this.listener = listener;
+            return this;
+        }
+
+        public Builder setErrorListener(ErrorListener errorListener)
+        {
+            this.errorListener = errorListener;
+            return this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> Request<T> build()
+        {
+            if (url == null || url.isEmpty())
+            {
+                throw new IllegalArgumentException("url can not be NULL or EMPTY.");
+            }
+
+            String requestUrl = parseUrl();
+
+            SimpleRequest<T> request = new SimpleRequest(method, requestUrl, listener, errorListener);
+
+            request.setParams(params);
+
+            request.setResponseParser((ResponseParser<T>) responseParser);
+
+            //return request;
+            return request;
+        }
+
+        public void execute(Volley volley)
+        {
+            volley.add(build());
+        }
+
+        private String parseUrl()
+        {
+            if (method == Method.GET && params != null)
+            {
+                boolean and;
+                StringBuilder builder = new StringBuilder(url);
+                if (!url.contains("?"))
+                {
+                    builder.append("?");
+                    and = false;
+                }
+                else if (url.indexOf("?") == url.length() - 1)
+                {
+                    and = false;
+                }
+                else
+                {
+                    and = true;
+                }
+
+                for (Entry<String, String> entry : params.entrySet())
+                {
+                    if (and)
+                    {
+                        builder.append("&");
+                    }
+                    builder.append(entry.getKey()).append("=").append(entry.getValue());
+                    and = true;
+                }
+                return builder.toString();
+            }
+            else
+            {
+                return url;
+            }
+        }
     }
 }

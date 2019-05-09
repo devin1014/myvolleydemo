@@ -25,11 +25,6 @@ import com.android.volley.exception.ServerError;
 import com.android.volley.exception.TimeoutError;
 import com.android.volley.exception.VolleyError;
 import com.android.volley.mock.MockHttpStack;
-import com.android.volley.network.BasicNetwork;
-import com.android.volley.network.Header;
-import com.android.volley.network.HttpResponse;
-import com.android.volley.network.NetworkResponse;
-import com.android.volley.toolbox.ByteArrayPool;
 
 import org.junit.Before;
 import org.junit.Test;

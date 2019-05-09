@@ -23,17 +23,21 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.exception.AuthFailureError;
+import com.android.volley.exception.ParseError;
+import com.android.volley.exception.VolleyError;
 import com.android.volley.network.Headers;
 import com.android.volley.network.NetworkResponse;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 
 /**
  * A canned request for retrieving the response body at a given URL as a String.
  */
-public class StringRequest extends Request<String>
+public class SimpleRequest<T> extends Request<T>
 {
     /**
      * Lock to guard mListener as it is cleared on cancel() and read on delivery.
@@ -42,7 +46,7 @@ public class StringRequest extends Request<String>
 
     @Nullable
     @GuardedBy("mLock")
-    private Listener<String> mListener;
+    private Listener<T> mListener;
 
     /**
      * Creates a new GET request.
@@ -51,8 +55,8 @@ public class StringRequest extends Request<String>
      * @param listener      Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
      */
-    public StringRequest(String url,
-                         @Nullable Listener<String> listener,
+    public SimpleRequest(String url,
+                         @Nullable Listener<T> listener,
                          @Nullable ErrorListener errorListener)
     {
         this(Method.GET, url, listener, errorListener);
@@ -66,9 +70,9 @@ public class StringRequest extends Request<String>
      * @param listener      Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
      */
-    public StringRequest(int method,
+    public SimpleRequest(int method,
                          String url,
-                         @Nullable Listener<String> listener,
+                         @Nullable Listener<T> listener,
                          @Nullable ErrorListener errorListener)
     {
         super(method, url, errorListener);
@@ -86,9 +90,9 @@ public class StringRequest extends Request<String>
     }
 
     @Override
-    protected void deliverResponse(String response)
+    protected void deliverResponse(T response)
     {
-        Response.Listener<String> listener;
+        Listener<T> listener;
         synchronized (mLock)
         {
             listener = mListener;
@@ -99,8 +103,22 @@ public class StringRequest extends Request<String>
         }
     }
 
+    private Map<String, String> mParams;
+
+    public void setParams(Map<String, String> params)
+    {
+        mParams = params;
+    }
+
     @Override
-    protected Response<String> parseNetworkResponse(NetworkResponse response)
+    protected Map<String, String> getParams() throws AuthFailureError
+    {
+        return mParams;
+    }
+
+    @Override
+    @SuppressWarnings("DefaultCharset")
+    protected final Response<T> parseNetworkResponse(NetworkResponse response)
     {
         String result;
         try
@@ -109,11 +127,20 @@ public class StringRequest extends Request<String>
         }
         catch (UnsupportedEncodingException e)
         {
-            // Since minSdkVersion = 8, we can't call
-            // new String(response.data, Charset.defaultCharset())
-            // So suppress the warning instead.
             result = new String(response.data, Charset.defaultCharset());
         }
-        return Response.success(result, Headers.parseCacheHeaders(response));
+
+        try
+        {
+            return Response.success(getResponseParser().parse(result), Headers.parseCacheHeaders(response));
+        }
+        catch (ParseError parseError)
+        {
+            return Response.error(parseError);
+        }
+        catch (NullPointerException e)
+        {
+            return Response.error(new VolleyError(e));
+        }
     }
 }

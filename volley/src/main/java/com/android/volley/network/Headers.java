@@ -36,7 +36,7 @@ public final class Headers
     public static final String HEADER_ETAG = "ETag";
 
 
-    public static final String DEFAULT_CONTENT_CHARSET = "ISO-8859-1";
+    public static final String DEFAULT_CONTENT_CHARSET = "UTF-8";
     public static final String RFC1123_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
 

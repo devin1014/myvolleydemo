@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import com.android.volley.network.ByteArrayPool;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotSame;

@@ -20,9 +20,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.android.volley.Cache;
-import com.android.volley.network.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.network.NetworkResponse;
 
 /**
  * A synthetic request used for clearing the cache.

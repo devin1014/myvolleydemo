@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.volley.toolbox;
+package com.android.volley.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

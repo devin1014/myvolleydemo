@@ -272,17 +272,6 @@ public class ConnHttpStack implements HttpStack
     {
         switch (request.getMethod())
         {
-            case Method.DEPRECATED_GET_OR_POST:
-                // This is the deprecated way that needs to be handled for backwards compatibility.
-                // If the request's post body is null, then the assumption is that the request is
-                // GET.  Otherwise, it is assumed that the request is a POST.
-                byte[] postBody = request.getPostBody();
-                if (postBody != null)
-                {
-                    connection.setRequestMethod("POST");
-                    addBody(connection, request, postBody);
-                }
-                break;
             case Method.GET:
                 // Not necessary to set the request method because connection defaults to GET but
                 // being explicit here.

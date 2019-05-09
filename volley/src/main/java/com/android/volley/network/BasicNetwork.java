@@ -33,8 +33,6 @@ import com.android.volley.exception.VolleyError;
 import com.android.volley.network.Interceptors.CacheHeaderInterceptor;
 import com.android.volley.network.Interceptors.HeaderInterceptors;
 import com.android.volley.network.Interceptors.HttpHeaderInterceptor;
-import com.android.volley.toolbox.ByteArrayPool;
-import com.android.volley.toolbox.PoolingByteArrayOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

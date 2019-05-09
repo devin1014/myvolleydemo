@@ -1,5 +1,6 @@
 package android.liuwei.myvolleydem;
 
+import android.liuwei.myvolleydem.request.PathRequest;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,6 +14,8 @@ import com.android.volley.CachePolicy.AllCachePolicy;
 import com.android.volley.CachePolicy.DefaultCachePolicy;
 import com.android.volley.CachePolicy.ErrorCachePolicy;
 import com.android.volley.CachePolicy.NoCachePolicy;
+import com.android.volley.Request;
+import com.android.volley.Request.ResponseParser;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.Volley;
@@ -20,6 +23,9 @@ import com.android.volley.Volley.Builder;
 import com.android.volley.VolleyLog;
 import com.android.volley.exception.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -73,12 +79,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                mVolley.add(
-                        new StringRequest(
-                                CONSTANT.URL_GET,
-                                mStringListener,
-                                mErrorListener)
-                );
+                //executeGetString();
+                executeGetChannel();
             }
         });
 
@@ -87,33 +89,141 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                mVolley.add(
-                        new PathRequest(
-                                CONSTANT.URL_POST,
-                                mStringListener,
-                                mErrorListener)
-                );
+                //executePostString();
+                executeAccessToken();
             }
         });
     }
 
-    private Listener<String> mStringListener = new Listener<String>()
+    private void resetResponse(String response)
     {
-        @Override
-        public void onResponse(String response)
-        {
-            Log.i("Volley", response);
-            mResponseTxt.setText(response);
-        }
-    };
+        Log.i("Volley", response);
+        mResponseTxt.setText(response);
+    }
 
-    private ErrorListener mErrorListener = new ErrorListener()
+    private void resetVolleyError(VolleyError error)
     {
-        @Override
-        public void onErrorResponse(VolleyError error)
-        {
-            Log.i("Volley", error.toString());
-            mResponseTxt.setText(error.toString());
-        }
-    };
+        Log.i("Volley", error.toString());
+        mResponseTxt.setText(error.toString());
+    }
+
+    private void executeGetString()
+    {
+        mVolley.add(
+                new StringRequest(CONSTANT.URL_GET,
+                        new Listener<String>()
+                        {
+                            @Override
+                            public void onResponse(String response)
+                            {
+                                resetResponse(response);
+                            }
+                        },
+                        new ErrorListener()
+                        {
+                            @Override
+                            public void onErrorResponse(VolleyError error)
+                            {
+                                resetVolleyError(error);
+                            }
+                        })
+        );
+    }
+
+    private void executePostString()
+    {
+        mVolley.add(
+                new PathRequest(
+                        CONSTANT.URL_POST,
+                        new Listener<String>()
+                        {
+                            @Override
+                            public void onResponse(String response)
+                            {
+                                resetResponse(response);
+                            }
+                        },
+                        new ErrorListener()
+                        {
+                            @Override
+                            public void onErrorResponse(VolleyError error)
+                            {
+                                resetVolleyError(error);
+                            }
+                        })
+        );
+    }
+
+    private void executeAccessToken()
+    {
+        new Request.Builder()
+                .post()
+                .url(CONSTANT.URL_ACCESS_TOKEN)
+                .addParam("format", "json")
+                .setListener(new Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response)
+                    {
+                        resetResponse(response.toString());
+                    }
+                })
+                .setErrorListener(new ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        resetVolleyError(error);
+                    }
+                })
+                .setResponseParser(new ResponseParser<JSONObject>()
+                {
+                    @Override
+                    public JSONObject parse(String data)
+                    {
+                        try
+                        {
+                            return new JSONObject(data);
+                        }
+                        catch (JSONException e)
+                        {
+                            return null;
+                        }
+                    }
+                })
+                .execute(mVolley);
+    }
+
+    private void executeGetChannel()
+    {
+        new Request.Builder()
+                .get()
+                .url(CONSTANT.URL_CHANNEL)
+                .addParam("format", "json")
+                .setListener(new Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response)
+                    {
+                        resetResponse(response);
+                    }
+                })
+                .setErrorListener(new ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        resetVolleyError(error);
+                    }
+                })
+                .setResponseParser(new ResponseParser<String>()
+                {
+                    @Override
+                    public String parse(String data)
+                    {
+                        return data;
+                    }
+                })
+                .execute(mVolley);
+    }
 }

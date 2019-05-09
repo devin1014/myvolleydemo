@@ -23,8 +23,7 @@ public interface CachePolicy
         @Override
         public boolean shouldCache(Request<?> request)
         {
-            return request.getMethod() == Method.GET
-                    || request.getMethod() == Method.DEPRECATED_GET_OR_POST;
+            return request.getMethod() == Method.GET;
         }
 
         @Override
@@ -43,8 +42,7 @@ public interface CachePolicy
             // will be used because doing so requires calling getPostBody() which is expensive and may
             // throw AuthFailureError.
             int method = request.getMethod();
-            if (method == Method.GET
-                    || method == Method.DEPRECATED_GET_OR_POST)
+            if (method == Method.GET)
             {
                 return url;
             }
